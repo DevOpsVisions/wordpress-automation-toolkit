@@ -1,4 +1,4 @@
-# Project 2: WordPress Automation Toolkit
+# Standards and Conventions
 
 ## Repository and Application
 
