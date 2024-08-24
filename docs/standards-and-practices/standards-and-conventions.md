@@ -1,5 +1,9 @@
 # Standards and Conventions
 
+All standards and conventions outlined here are based on our established guidelines, which can be found in the following repository: 
+
+[Common Workspace Hub](https://github.com/DevOpsVisions/common-workspace-hub)
+
 ## Repository and Application
 
 - **Repository Name**: `wordpress-automation-toolkit`
@@ -15,7 +19,7 @@
   - `Dovs.WordPressAutoKit.IntTest`: The project file dedicated to integration tests.
 
 ## Azure Cloud
-
+**Testing Environment:**
 - **Resource Name**: `rg-wordpress-test-uksouth-001`
 - **Workload/Application**: WordPress
 - **Environment**: Test
