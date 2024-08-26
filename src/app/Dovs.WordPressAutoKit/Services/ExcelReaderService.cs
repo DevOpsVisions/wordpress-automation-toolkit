@@ -9,7 +9,7 @@ namespace Dovs.WordPressAutoKit.Services
 {
     public class ExcelReaderService : IExcelReaderService
     {
-        public List<UserData> ReadUserDataFromExcel(string filePath)
+        public List<UserData> ReadUserData(string filePath)
         {
             List<UserData> userDataList = new List<UserData>();
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);

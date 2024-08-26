@@ -4,6 +4,6 @@ namespace Dovs.WordPressAutoKit.Interfaces
 {
     public interface IExcelReaderService
     {
-        List<UserData> ReadUserDataFromExcel(string filePath);
+        List<UserData> ReadUserData(string filePath);
     }
 }

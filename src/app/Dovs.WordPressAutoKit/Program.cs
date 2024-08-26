@@ -58,7 +58,7 @@ string newUserPassword = passwordService.PromptForPassword("Enter the password t
 using (IWebDriver driver = webDriverService.CreateWebDriver())
 {
     adminLoginService.Login(driver, username, password);
-    var userDataList = excelReaderService.ReadUserDataFromExcel(filePath);
+    var userDataList = excelReaderService.ReadUserData(filePath);
 
     foreach (var userData in userDataList)
     {
