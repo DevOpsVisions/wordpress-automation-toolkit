@@ -9,7 +9,7 @@ namespace Dovs.WordPressAutoKit.Services
     {
         public void UpdateMembershipLevel(IWebDriver driver, string membershipLevel)
         {
-            var membershipLevelDrop = driver.FindElement(By.Name(ElementIds.MEMBERSHIPLEVELDROP));
+            var membershipLevelDrop = driver.FindElement(By.Name(ElementIds.MEMBERSHIP_LEVEL_DROP));
             var selectElement = new SelectElement(membershipLevelDrop);
             selectElement.SelectByText(membershipLevel);
         }

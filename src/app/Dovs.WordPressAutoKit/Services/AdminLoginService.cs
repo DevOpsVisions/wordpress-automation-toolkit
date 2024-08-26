@@ -24,13 +24,13 @@ namespace Dovs.WordPressAutoKit.Services
 
         private void FillLoginForm(IWebDriver driver, string username, string password)
         {
-            driver.FindElement(By.Id(ElementIds.USERNAMEINPUT)).SendKeys(username);
-            driver.FindElement(By.Id(ElementIds.LOGINPASSWORDINPUT)).SendKeys(password);
+            driver.FindElement(By.Id(ElementIds.USER_NAME_INPUT)).SendKeys(username);
+            driver.FindElement(By.Id(ElementIds.USER_PASS_INPUT)).SendKeys(password);
         }
 
         private void ClickLoginButton(IWebDriver driver)
         {
-            driver.FindElement(By.Id(ElementIds.LOGINBUTTON)).Click();
+            driver.FindElement(By.Id(ElementIds.LOGIN_BUTTON)).Click();
         }
     }
 }

@@ -44,42 +44,42 @@ namespace Dovs.WordPressAutoKit.Services
 
         private static void FillBasicDetails(IWebDriver driver, UserData userData)
         {
-            driver.FindElement(By.Id(ElementIds.USERNAMEINPUT)).SendKeys(userData.UserName);
-            driver.FindElement(By.Id(ElementIds.EMAILINPUT)).SendKeys(userData.Email);
+            driver.FindElement(By.Id(ElementIds.USER_NAME_INPUT)).SendKeys(userData.UserName);
+            driver.FindElement(By.Id(ElementIds.EMAIL_INPUT)).SendKeys(userData.Email);
 
             string[] nameParts = userData.UserName.Split(new char[] { ' ' }, 2);
             string firstName = nameParts[0];
             string lastName = nameParts.Length > 1 ? nameParts[1] : "";
 
-            driver.FindElement(By.Id(ElementIds.FIRSTNAMEINPUT)).SendKeys(firstName);
-            driver.FindElement(By.Id(ElementIds.LASTNAMEINPUT)).SendKeys(lastName);
+            driver.FindElement(By.Id(ElementIds.FIRST_NAME_INPUT)).SendKeys(firstName);
+            driver.FindElement(By.Id(ElementIds.LAST_NAME_INPUT)).SendKeys(lastName);
         }
 
         private static void FillPassword(IWebDriver driver, string password)
         {
-            var passwordField = driver.FindElement(By.Id(ElementIds.NEWUSERPASSWORDINPUT));
+            var passwordField = driver.FindElement(By.Id(ElementIds.NEW_USER_PASSWORD_INPUT));
             passwordField.Clear();
             passwordField.SendKeys(password);
         }
 
         private static void SelectUserRole(IWebDriver driver, string role)
         {
-            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLESELECTION));
+            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLE_SELECTION));
             var selectElement = new SelectElement(roleDropdown);
             selectElement.SelectByValue(role);
         }
 
         private static void SubmitAddingForm(IWebDriver driver)
         {
-            driver.FindElement(By.Id(ElementIds.CREATEUSERBUTTON)).Click();
+            driver.FindElement(By.Id(ElementIds.CREATE_USER_BUTTON)).Click();
             System.Threading.Thread.Sleep(1000);
         }
 
         private static string GetConfirmationUrl(IWebDriver driver)
         {
-            var messageDiv = driver.FindElement(By.Id(ElementIds.CONFIMATIONDIV));
-            var anchorTag = messageDiv.FindElement(By.TagName(ElementIds.ANCHORTAGNAME));
-            return anchorTag.GetAttribute(ElementIds.ANCHORTAGaATTRIBUTE);
+            var messageDiv = driver.FindElement(By.Id(ElementIds.CONFIRMATION_DIV));
+            var anchorTag = messageDiv.FindElement(By.TagName(ElementIds.ANCHOR_TAG_NAME));
+            return anchorTag.GetAttribute(ElementIds.ANCHOR_TAG_ATTRIBUTE);
         }
 
         private static void NavigateToUrl(IWebDriver driver, string url)
@@ -90,14 +90,14 @@ namespace Dovs.WordPressAutoKit.Services
 
         private static void UpdateUserRole(IWebDriver driver, string role)
         {
-            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLESELECTION));
+            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLE_SELECTION));
             var selectElement = new SelectElement(roleDropdown);
             selectElement.SelectByValue(role);
         }
 
         private static void SaveChanges(IWebDriver driver)
         {
-            driver.FindElement(By.Id(ElementIds.UPDATEUSERBUTTON)).Click();
+            driver.FindElement(By.Id(ElementIds.UPDATE_USER_BUTTON)).Click();
             System.Threading.Thread.Sleep(1000);
         }
 

@@ -1,4 +1,5 @@
 ﻿using Dovs.WordPressAutoKit.Interfaces;
+using Dovs.WordPressAutoKit.Common;
 using System;
 using System.IO;
 
@@ -6,7 +7,56 @@ namespace Dovs.WordPressAutoKit.Services
 {
     public class FilePathService : IFilePathService
     {
+        public string GetBasePath(int levelsToTraverse)
+        {
+            // Validate the number of levels to ensure it's a positive number
+            if (levelsToTraverse < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(levelsToTraverse), "Number of levels to traverse must be greater than zero.");
+            }
+
+            // Start from the current directory
+            string currentDir = Directory.GetCurrentDirectory();
+
+            try
+            {
+                // Traverse upwards the specified number of levels
+                for (int i = 0; i < levelsToTraverse; i++)
+                {
+                    DirectoryInfo parentDir = Directory.GetParent(currentDir);
+
+                    // If we reach the root directory, break early
+                    if (parentDir == null)
+                    {
+                        Console.WriteLine("Reached the root directory.");
+                        break;
+                    }
+
+                    currentDir = parentDir.FullName;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle potential errors, such as permission issues or other IO-related exceptions
+                Console.WriteLine($"An error occurred while traversing directories: {ex.Message}");
+            }
+
+            return currentDir;
+        }
+
         public string GetFilePath(string defaultFilePath)
+        {
+            // Display file path options based on whether the default file exists
+            PrintFilePathOptions(defaultFilePath);
+
+            // Continuously prompt the user until they provide a valid choice
+            EUserChoice choice = GetValidUserChoice();
+
+            // Handle the user's choice and return the corresponding file path (default or custom)
+            return HandleUserChoice(choice, defaultFilePath);
+        }
+
+        private void PrintFilePathOptions(string defaultFilePath)
         {
             if (File.Exists(defaultFilePath))
             {
@@ -14,24 +64,42 @@ namespace Dovs.WordPressAutoKit.Services
             }
             else
             {
-                Console.WriteLine("File not found: Press \n1 to use the default path \n2 to enter your own path:");
+                Console.WriteLine($"File not found: Ensure it's copied to {defaultFilePath}. Press \n1 to use the default path \n2 to enter your own path:");
             }
+        }
 
-            string choice = Console.ReadLine();
-            if (choice == "1")
+        private EUserChoice GetValidUserChoice()
+        {
+            while (true) // Loop until valid input is received
             {
-                return defaultFilePath;
+                string input = Console.ReadLine();
+
+                if (Enum.TryParse(input, out EUserChoice choice) && Enum.IsDefined(typeof(EUserChoice), choice))
+                {
+                    return choice;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter 1 for default path or 2 to enter a custom path.");
+                }
             }
-            else if (choice == "2")
+        }
+
+        private string HandleUserChoice(EUserChoice choice, string defaultFilePath)
+        {
+            switch (choice)
             {
-                Console.WriteLine("Enter your own file path:");
-                return Console.ReadLine();
-            }
-            else
-            {
-                Console.WriteLine("Invalid choice. Exiting the program.");
-                Environment.Exit(0);
-                return null;
+                case EUserChoice.DefaultPath:
+                    return defaultFilePath;
+
+                case EUserChoice.CustomPath:
+                    Console.WriteLine("Please enter your own path:");
+                    return Console.ReadLine();
+
+                default:
+                    // This default case is unlikely to be reached, but we include it for safety.
+                    Console.WriteLine("Unexpected error. Returning null.");
+                    return null;
             }
         }
     }

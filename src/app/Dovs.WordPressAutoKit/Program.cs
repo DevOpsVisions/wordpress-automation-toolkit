@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.IO;
+using Dovs.WordPressAutoKit.Common;
 using Dovs.WordPressAutoKit.Interfaces;
 using Dovs.WordPressAutoKit.Services;
 using OpenQA.Selenium;
@@ -8,6 +9,10 @@ using OpenQA.Selenium;
 /// <summary>  
 /// Entry point of the application.  
 /// </summary>  
+/// 
+
+const int LEVELSTRAVERSE = 2;
+
 IConfigurationService configurationService = new ConfigurationService();
 IFilePathService filePathService = new FilePathService();
 IAuthenticationService authenticationService = new AuthenticationService(configurationService);
@@ -17,17 +22,13 @@ IExcelReaderService excelReaderService = new ExcelReaderService();
 IUserManagementService userManagementService = new UserManagementService(new MembershipUpdater(), configurationService);
 IAdminLoginService adminLoginService = new AdminLoginService(configurationService);
 
-/// <summary>  
-/// Gets the default file path from the configuration and prints it.  
-/// </summary>  
-string defaultFilePath = configurationService.GetConfigValue("DefaultFilePath");
+string basePath = filePathService.GetBasePath(LEVELSTRAVERSE);
+string defaultFilePath = Path.Combine(basePath, "default.xlsx");
+
 Console.WriteLine("Current default path is: " + defaultFilePath);
 
-/// <summary>  
-/// Gets the file path from the user and checks if the file exists.  
-/// </summary>  
 string filePath = filePathService.GetFilePath(defaultFilePath);
-if (!File.Exists(filePath))
+if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
 {
     Console.WriteLine("File not found. Please provide a valid file path.");
     return;
