@@ -18,7 +18,7 @@ IFilePathService filePathService = new FilePathService();
 IAuthenticationService authenticationService = new AuthenticationService(configurationService);
 IPasswordService passwordService = new PasswordService();
 IWebDriverService webDriverService = new WebDriverService();
-IExcelReaderService excelReaderService = new ExcelReaderService();
+IExcelReaderService excelReaderService = new ExcelReaderService(configurationService);
 IUserManagementService userManagementService = new UserManagementService(new MembershipUpdater(), configurationService);
 IAdminLoginService adminLoginService = new AdminLoginService(configurationService);
 

@@ -1,7 +1,6 @@
 ﻿using Dovs.WordPressAutoKit.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using ExcelDataReader;
 
@@ -9,14 +8,21 @@ namespace Dovs.WordPressAutoKit.Services
 {
     public class ExcelReaderService : IExcelReaderService
     {
+        private readonly IConfigurationService _configurationService;
+
+        public ExcelReaderService(IConfigurationService configurationService)
+        {
+            _configurationService = configurationService;
+        }
+
         public List<UserData> ReadUserData(string filePath)
         {
             List<UserData> userDataList = new List<UserData>();
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-            string userNameColumn = ConfigurationManager.AppSettings["UserNameColumn"];
-            string emailColumn = ConfigurationManager.AppSettings["EmailColumn"];
-            string membershipColumn = ConfigurationManager.AppSettings["MembershipColumn"];
+            string userNameColumn = _configurationService.GetConfigValue("UserNameColumn");
+            string emailColumn = _configurationService.GetConfigValue("EmailColumn");
+            string membershipColumn = _configurationService.GetConfigValue("MembershipColumn");
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             using (var reader = ExcelReaderFactory.CreateReader(stream))
