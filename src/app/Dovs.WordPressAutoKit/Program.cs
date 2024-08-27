@@ -4,13 +4,10 @@ using System.IO;
 using Dovs.WordPressAutoKit.Common;
 using Dovs.WordPressAutoKit.Interfaces;
 using Dovs.WordPressAutoKit.Services;
-using OpenQA.Selenium;
 
-/// <summary>  
-/// Entry point of the application.  
-/// </summary>  
-/// 
-
+/// <summary>
+/// Entry point of the application.
+/// </summary>
 const int LEVELSTRAVERSE = 2;
 
 IConfigurationService configurationService = new ConfigurationService();
@@ -19,7 +16,7 @@ IAuthenticationService authenticationService = new AuthenticationService(configu
 IPasswordService passwordService = new PasswordService();
 IWebDriverService webDriverService = new WebDriverService();
 IExcelReaderService excelReaderService = new ExcelReaderService(configurationService);
-IUserManagementService userManagementService = new UserManagementService(new MembershipUpdater(), configurationService);
+IUserManagementService userManagementService = new UserManagementService(new MembershipService(), configurationService);
 IAdminLoginService adminLoginService = new AdminLoginService(configurationService);
 
 string basePath = filePathService.GetBasePath(LEVELSTRAVERSE);
@@ -34,9 +31,9 @@ if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
     return;
 }
 
-/// <summary>  
-/// Gets the admin username for login.  
-/// </summary>  
+/// <summary>
+/// Gets the admin username for login.
+/// </summary>
 string username = authenticationService.GetAdminUsername();
 if (string.IsNullOrEmpty(username))
 {
@@ -46,29 +43,39 @@ if (string.IsNullOrEmpty(username))
 
 Console.WriteLine($"Logged in as: {username}");
 
-/// <summary>  
-/// Prompts the user for the admin password and the new user password.  
-/// </summary>  
+/// <summary>
+/// Prompts the user for the admin password and the new user password.
+/// </summary>
 string password = passwordService.PromptForPassword("Enter your admin password:");
 string newUserPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
 
-/// <summary>  
-/// Creates a new WebDriver instance, logs in, reads user data from Excel, and adds new users.  
-/// </summary>  
-using (IWebDriver driver = webDriverService.CreateWebDriver())
+/// <summary>
+/// Creates a new WebDriver instance, logs in, reads user data from Excel, and adds new users.
+/// </summary>
+using (var driver = webDriverService.CreateWebDriver())
 {
-    adminLoginService.Login(driver, username, password);
-    var userDataList = excelReaderService.ReadUserData(filePath);
-
-    foreach (var userData in userDataList)
+    try
     {
-        userManagementService.AddNewUser(driver, userData, newUserPassword);
-    }
+        adminLoginService.Login(driver, username, password);
+        var userDataList = excelReaderService.ReadUserData(filePath);
 
-    webDriverService.QuitWebDriver(driver);
+        foreach (var userData in userDataList)
+        {
+            userManagementService.AddNewUser(driver, userData, newUserPassword);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred: {ex.Message}");
+        // Optionally log the error to a file or monitoring system
+    }
+    finally
+    {
+        webDriverService.QuitWebDriver(driver);
+    }
 }
 
-/// <summary>  
-/// Exits the application.  
-/// </summary>  
+/// <summary>
+/// Exits the application.
+/// </summary>
 Environment.Exit(0);

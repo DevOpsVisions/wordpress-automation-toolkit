@@ -1,17 +1,29 @@
-﻿using System;
+﻿
+using System;
 using Dovs.WordPressAutoKit.Interfaces;
 
 namespace Dovs.WordPressAutoKit.Services
 {
+    /// <summary>  
+    /// Service for handling authentication operations.  
+    /// </summary>  
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfigurationService _configurationService;
 
+        /// <summary>  
+        /// Initializes a new instance of the <see cref="AuthenticationService"/> class.  
+        /// </summary>  
+        /// <param name="configurationService">The configuration service.</param>  
         public AuthenticationService(IConfigurationService configurationService)
         {
             _configurationService = configurationService;
         }
 
+        /// <summary>  
+        /// Gets the admin username for login.  
+        /// </summary>  
+        /// <returns>The admin username.</returns>  
         public string GetAdminUsername()
         {
             string admin1 = _configurationService.GetConfigValue("Admin1");
