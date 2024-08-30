@@ -22,12 +22,12 @@ The `unar` command extracts the contents of `backup.tgz` to the current director
 
 ## 3. Install Required Extensions
 
-- Install the `mbstring` extension required by the LMS plugin
+If your WordPress site includes the MasterStudy LMS plugin, the `mbstring` extension is required for proper functionality.
 
 ```bash
 sudo apt-get install php-mbstring
 ```
-The `php-mbstring` extension is necessary for the MasterStudy LMS plugin. This command installs it using `apt-get`, the package manager for Ubuntu/Debian systems.
+The `php-mbstring` extension is necessary for handling multibyte string operations, especially in the context of LMS plugins like MasterStudy. The installation is performed using `apt-get`, the package manager for Ubuntu/Debian systems.
 
 ## 4. Configure MySQL Database
 
@@ -48,9 +48,10 @@ SELECT User, Host FROM mysql.user;
 - **Create a new MySQL user for WordPress:**
 
 ```sql
-CREATE USER 'wordpressUser'@'localhost' IDENTIFIED BY 'password';
+CREATE USER 'wordpressUser'@'localhost' IDENTIFIED BY 'YourStrongPassword';
 ```
-*Creates a new MySQL user `wordpressUser` with the password `password`, restricted to the local host.*
+*Creates a new MySQL user `wordpressUser` with a strong password, restricted to the local host.*
+Ensure you use a secure password
 
 - **Check existing databases:**
 
