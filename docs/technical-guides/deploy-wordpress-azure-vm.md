@@ -1,5 +1,5 @@
 
-# Deploying or Restoring WordPress with LMS Plugin on an Azure VM
+# Deploying or Restoring WordPress on an Azure VM
 
 This guide provides a comprehensive walkthrough for setting up a testing environment on Azure by deploying or restoring WordPress on an Ubuntu VM. The instructions cover preparing a LAMP stack environment, configuring essential components, and deploying the WordPress application. Follow these steps to ensure a smooth deployment and configuration process for testing purposes.
 
@@ -9,11 +9,11 @@ To prepare your environment, refer to the following guide:
 
 [Preparing a LAMP Stack Environment for Hosting](https://github.com/DevOpsVisions/common-workspace-hub/blob/main/docs/technical-guides/prepare-lamp-stack-env.md)
 
-## 2. Download and Set Up WorPress
+## 2. Download and Set Up WordPress
 
-Download the WorPress zip file, whether it's the latest version or a backup from your production environment.
+Download the WordPress zip file, whether it's the latest version or a backup from your production environment.
 
-- **Extract the WordPress site from the backub file:**
+- **Extract the WordPress site from the backup file:**
 
 ```bash
 unar /home/azureuser/Downloads/backup.tgz
@@ -241,3 +241,11 @@ sudo chmod -R 755 /var/www/html/wp-content/plugins/
 ## 11. Clean Up Unnecessary Plugins
 
 - **Remove unnecessary plugins from the WordPress admin panel.** Log in to the WordPress admin dashboard and delete any unused plugins to maintain a clean and secure environment.*
+
+## 12. Final Checks and Testing
+
+**Test the WordPress site:**
+
+- Navigate to the site's URL in your web browser to ensure it is loading correctly.
+- Log in to the WordPress admin dashboard and verify that all settings and plugins are configured as expected.
+- Check the functionality of the MasterStudy LMS plugin to ensure it is working properly.
