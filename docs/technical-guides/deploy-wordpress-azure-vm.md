@@ -112,14 +112,7 @@ sudo find /var/www/html -type f -exec chmod 644 {} \;
 
 ## 5. Configure WordPress Database
 
-- **Open the `wp-config.php` file for editing:**
-
-```bash
-sudo nano /var/www/html/wp-config.php
-```
-*Uses the `nano` text editor to open the WordPress configuration file. Update database settings to match the new database and user created earlier.*
-
-- **Import Database (Optional):**
+- **Import Database (Optional):** If you are restoring from a production environment backup, use the following commands to import the database:
 
 ```bash
 sudo mysql -p
@@ -141,6 +134,13 @@ UPDATE wp_options SET option_value = 'http://test.example.com/' WHERE option_nam
 exit
 ```
 *Modifies the WordPress site URLs to match the new domain or IP address.*
+
+- **Open the `wp-config.php` file for editing:**
+
+```bash
+sudo nano /var/www/html/wp-config.php
+```
+*Uses the `nano` text editor to open the WordPress configuration file. Update database settings to match the new database and user created earlier.*
 
 ## 6. Remove Unnecessary Plugins
 
