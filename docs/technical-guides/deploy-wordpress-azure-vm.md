@@ -108,7 +108,7 @@ FLUSH PRIVILEGES;
 
 *Grants full privileges to `wordpressUser` on the `wordpress` database and applies the changes with `FLUSH PRIVILEGES`.*
 
-## 5. Configure WordPress Database
+## 6. Configure WordPress Database
 
 - **Import Database (Optional):** If you are restoring from a production environment backup, use the following commands to import the database:
 
@@ -140,7 +140,7 @@ sudo nano /var/www/html/wp-config.php
 ```
 *Uses the `nano` text editor to open the WordPress configuration file. Update database settings to match the new database and user created earlier.*
 
-## 6. Remove Unnecessary Plugins
+## 7. Remove Unnecessary Plugins
 
 - **Delete the unnecessary plugin:**
 
@@ -149,7 +149,7 @@ sudo rm -r /var/www/html/wp-content/plugins/object-cache-pro
 ```
 *Removes the `object-cache-pro` plugin if it is not required.*
 
-## 7. Configure Apache
+## 8. Configure Apache
 
 - **Enable `rewrite` module:**
 
@@ -189,7 +189,7 @@ sudo systemctl restart apache2
 ```
 *Restarts the Apache server to apply the new configuration.*
 
-## 8. Install WP-CLI
+## 9. Install WP-CLI
 
 - **Download WP-CLI:** as we need it later in the next step
 
@@ -214,7 +214,7 @@ wp --info
 ```
 *Makes the WP-CLI file executable and moves it to a directory in the system's `PATH` for global access.*
 
-## 9. Replace URLs and Flush Cache
+## 10. Replace URLs and Flush Cache
 
 - **Navigate to the WordPress installation directory:**
 
@@ -231,7 +231,7 @@ wp cache flush
 ```
 *Replaces old URLs with the new ones across all database tables and clears the WordPress cache.*
 
-## 10. Adjust Plugin Permissions
+## 11. Adjust Plugin Permissions
 
 - **Correct plugin ownership and permissions:**
 
@@ -241,7 +241,7 @@ sudo chmod -R 755 /var/www/html/wp-content/plugins/
 ```
 *Ensures the correct ownership and permissions are set for the plugins directory to avoid permission errors.*
 
-## 11. Clean Up Unnecessary Plugins
+## 12. Clean Up Unnecessary Plugins
 
 - **Remove unnecessary plugins from the WordPress admin panel.** Log in to the WordPress admin dashboard and delete any unused plugins to maintain a clean and secure environment.*
 
