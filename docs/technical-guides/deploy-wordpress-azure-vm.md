@@ -20,16 +20,7 @@ unar /home/azureuser/Downloads/backup.tgz
 ```
 The `unar` command extracts the contents of `backup.tgz` to the current directory. Make sure you have the `unar` utility installed.
 
-## 3. Install Required Extensions
-
-If your WordPress site includes the MasterStudy LMS plugin, the `mbstring` extension is required for proper functionality.
-
-```bash
-sudo apt-get install php-mbstring
-```
-The `php-mbstring` extension is necessary for handling multibyte string operations, especially in the context of LMS plugins like MasterStudy. The installation is performed using `apt-get`, the package manager for Ubuntu/Debian systems.
-
-## 4. Restore WordPress Files
+## 3. Restore WordPress Files
 
 - **Remove all files in the web root directory:**
 
@@ -58,7 +49,7 @@ sudo find /var/www/html -type f -exec chmod 644 {} \;
 ```
 *Sets the correct ownership (`www-data`) and permissions (755 for directories, 644 for files) to ensure the web server can access the files properly.*
 
-## 5. Configure MySQL Database
+## 4. Configure MySQL Database
 
 - **Log in to MySQL:** Log in to MySQL with the root user.
 
@@ -108,7 +99,7 @@ FLUSH PRIVILEGES;
 
 *Grants full privileges to `wordpressUser` on the `wordpress` database and applies the changes with `FLUSH PRIVILEGES`.*
 
-## 6. Configure WordPress Database
+## 5. Configure WordPress Database
 
 - **Import Database (Optional):** If you are restoring from a production environment backup, use the following commands to import the database:
 
@@ -140,7 +131,7 @@ sudo nano /var/www/html/wp-config.php
 ```
 *Uses the `nano` text editor to open the WordPress configuration file. Update database settings to match the new database and user created earlier.*
 
-## 7. Remove Unnecessary Plugins
+## 6. Remove Unnecessary Plugins
 
 - **Delete the unnecessary plugin:**
 
@@ -148,6 +139,15 @@ sudo nano /var/www/html/wp-config.php
 sudo rm -r /var/www/html/wp-content/plugins/object-cache-pro
 ```
 *Removes the `object-cache-pro` plugin if it is not required.*
+
+## 7. Install Required Extensions
+
+If your WordPress site includes the MasterStudy LMS plugin, the `mbstring` extension is required for proper functionality.
+
+```bash
+sudo apt-get install php-mbstring
+```
+The `php-mbstring` extension is necessary for handling multibyte string operations, especially in the context of LMS plugins like MasterStudy. The installation is performed using `apt-get`, the package manager for Ubuntu/Debian systems.
 
 ## 8. Configure Apache
 
