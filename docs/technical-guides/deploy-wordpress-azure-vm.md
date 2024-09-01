@@ -29,7 +29,36 @@ sudo apt-get install php-mbstring
 ```
 The `php-mbstring` extension is necessary for handling multibyte string operations, especially in the context of LMS plugins like MasterStudy. The installation is performed using `apt-get`, the package manager for Ubuntu/Debian systems.
 
-## 4. Configure MySQL Database
+## 4. Restore WordPress Files
+
+- **Remove all files in the web root directory:**
+
+```bash
+sudo rm -r /var/www/html/*
+```
+*Deletes all existing files in the web server's root directory (`/var/www/html`) to prepare for the restoration.*
+
+- **Copy the backup files to the web root:**
+
+```bash
+sudo cp -a /home/azureuser/backup/public_html/. /var/www/html
+```
+*Copies the restored WordPress files from the backup location to the web server's root directory.*
+
+- **Adjust ownership and permissions:**
+
+```bash
+sudo chown -R www-data:www-data /var/www/html/
+```
+```bash
+sudo find /var/www/html -type d -exec chmod 755 {} \;
+```
+```bash
+sudo find /var/www/html -type f -exec chmod 644 {} \;
+```
+*Sets the correct ownership (`www-data`) and permissions (755 for directories, 644 for files) to ensure the web server can access the files properly.*
+
+## 5. Configure MySQL Database
 
 - **Log in to MySQL:** Log in to MySQL with the root user.
 
@@ -76,39 +105,8 @@ GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpressUser'@'localhost';
 ```sql
 FLUSH PRIVILEGES;
 ```
-```sql
-exit
-```
+
 *Grants full privileges to `wordpressUser` on the `wordpress` database and applies the changes with `FLUSH PRIVILEGES`.*
-
-## 4. Restore WordPress Files
-
-- **Remove all files in the web root directory:**
-
-```bash
-sudo rm -r /var/www/html/*
-```
-*Deletes all existing files in the web server's root directory (`/var/www/html`) to prepare for the restoration.*
-
-- **Copy the backup files to the web root:**
-
-```bash
-sudo cp -a /home/azureuser/backup/public_html/. /var/www/html
-```
-*Copies the restored WordPress files from the backup location to the web server's root directory.*
-
-- **Adjust ownership and permissions:**
-
-```bash
-sudo chown -R www-data:www-data /var/www/html/
-```
-```bash
-sudo find /var/www/html -type d -exec chmod 755 {} \;
-```
-```bash
-sudo find /var/www/html -type f -exec chmod 644 {} \;
-```
-*Sets the correct ownership (`www-data`) and permissions (755 for directories, 644 for files) to ensure the web server can access the files properly.*
 
 ## 5. Configure WordPress Database
 
