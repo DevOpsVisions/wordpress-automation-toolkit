@@ -103,10 +103,6 @@ FLUSH PRIVILEGES;
 
 - **Import Database (Optional):** If you are restoring from a production environment backup, use the following commands to import the database:
 
-```bash
-sudo mysql -p
-```
-
 ```sql
 USE wordpress;
 ```
