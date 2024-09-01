@@ -71,7 +71,9 @@ SELECT User, Host FROM mysql.user;
 CREATE USER 'wordpressUser'@'localhost' IDENTIFIED BY 'YourStrongPassword';
 ```
 *Creates a new MySQL user `wordpressUser` with a strong password, restricted to the local host.*
-Ensure you use a secure password
+
+> [!IMPORTANT]  
+> Ensure you use a secure password.
 
 - **Check existing databases:**
 
