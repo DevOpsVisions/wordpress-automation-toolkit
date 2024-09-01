@@ -72,7 +72,11 @@ SHOW DATABASES;
 
 ```sql
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpressUser'@'localhost';
+```
+```sql
 FLUSH PRIVILEGES;
+```
+```sql
 exit
 ```
 *Grants full privileges to `wordpressUser` on the `wordpress` database and applies the changes with `FLUSH PRIVILEGES`.*
