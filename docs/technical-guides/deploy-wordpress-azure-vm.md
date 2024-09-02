@@ -86,6 +86,8 @@ SHOW DATABASES;
 
 ```sql
 CREATE DATABASE wordpress;
+```
+```sql
 SHOW DATABASES;
 ```
 *Creates a new database named `wordpress` and lists all databases to confirm its creation.*
@@ -117,7 +119,11 @@ source /home/azureuser/backup/backup.sql;
 
 ```sql
 UPDATE wp_options SET option_value = 'http://test.example.com/' WHERE option_name = 'siteurl';
+```
+```sql
 UPDATE wp_options SET option_value = 'http://test.example.com/' WHERE option_name = 'home';
+```
+```sql
 exit
 ```
 *Modifies the WordPress site URLs to match the new domain or IP address.*
@@ -207,7 +213,11 @@ php wp-cli.phar --info
 
 ```bash
 chmod +x wp-cli.phar
+```
+```bash
 sudo mv wp-cli.phar /usr/local/bin/wp
+```
+```bash
 wp --info
 ```
 *Makes the WP-CLI file executable and moves it to a directory in the system's `PATH` for global access.*
@@ -225,6 +235,8 @@ cd /var/www/html/
 
 ```bash
 wp search-replace 'https://example.com/' 'http://test.example.com/' --all-tables
+```
+```bash
 wp cache flush
 ```
 *Replaces old URLs with the new ones across all database tables and clears the WordPress cache.*
@@ -235,6 +247,8 @@ wp cache flush
 
 ```bash
 sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
+```
+```bash
 sudo chmod -R 755 /var/www/html/wp-content/plugins/
 ```
 *Ensures the correct ownership and permissions are set for the plugins directory to avoid permission errors.*
