@@ -1,81 +1,141 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using Dovs.WordPressAutoKit.Common;
 using Dovs.WordPressAutoKit.Interfaces;
 using Dovs.WordPressAutoKit.Services;
+using Dovs.FileSystemInteractor.Interfaces;
+using Dovs.FileSystemInteractor.Services;
 
-/// <summary>
-/// Entry point of the application.
-/// </summary>
-const int LEVELSTRAVERSE = 2;
-
-IConfigurationService configurationService = new ConfigurationService();
-IFilePathService filePathService = new FilePathService();
-IAuthenticationService authenticationService = new AuthenticationService(configurationService);
-IPasswordService passwordService = new PasswordService();
-IWebDriverService webDriverService = new WebDriverService();
-IExcelReaderService excelReaderService = new ExcelReaderService(configurationService);
-IUserManagementService userManagementService = new UserManagementService(new MembershipService(), configurationService);
-IAdminLoginService adminLoginService = new AdminLoginService(configurationService);
-
-string basePath = filePathService.GetBasePath(LEVELSTRAVERSE);
-string defaultFilePath = Path.Combine(basePath, "default.xlsx");
-
-Console.WriteLine("Current default path is: " + defaultFilePath);
-
-string filePath = filePathService.GetFilePath(defaultFilePath);
-if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+class Program
 {
-    Console.WriteLine("File not found. Please provide a valid file path.");
-    return;
-}
+    private static IConfigurationService? configurationService;
+    private static IFilePathService? filePathService;
+    private static IAuthenticationService? authenticationService;
+    private static IPasswordService? passwordService;
+    private static IWebDriverService? webDriverService;
+    private static IExcelReaderService? excelReaderService;
+    private static IUserManagementService? userManagementService;
+    private static IAdminLoginService? adminLoginService;
+    private static IFileInteractionService? fileInteractionService;
 
-/// <summary>
-/// Gets the admin username for login.
-/// </summary>
-string username = authenticationService.GetAdminUsername();
-if (string.IsNullOrEmpty(username))
-{
-    Console.WriteLine("Invalid choice. Exiting the program.");
-    return;
-}
-
-Console.WriteLine($"Logged in as: {username}");
-
-/// <summary>
-/// Prompts the user for the admin password and the new user password.
-/// </summary>
-string password = passwordService.PromptForPassword("Enter your admin password:");
-string newUserPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
-
-/// <summary>
-/// Creates a new WebDriver instance, logs in, reads user data from Excel, and adds new users.
-/// </summary>
-using (var driver = webDriverService.CreateWebDriver())
-{
-    try
+    static void Main(string[] args)
     {
-        adminLoginService.Login(driver, username, password);
-        var userDataList = excelReaderService.ReadUserData(filePath);
+        InitializeServices();
+        DisplayMenu();
+    }
 
-        foreach (var userData in userDataList)
+    static void InitializeServices()
+    {
+        configurationService = new ConfigurationService();
+        filePathService = new FilePathService();
+        authenticationService = new AuthenticationService(configurationService);
+        passwordService = new PasswordService();
+        webDriverService = new WebDriverService();
+        excelReaderService = new ExcelReaderService(configurationService);
+        userManagementService = new UserManagementService(new MembershipService(), configurationService);
+        adminLoginService = new AdminLoginService(configurationService);
+        fileInteractionService = new FileInteractionService();
+    }
+
+    static void DisplayMenu()
+    {
+        Console.WriteLine("Welcome to Q2A Automation Toolkit!");
+        Console.WriteLine("Please select an option:");
+        Console.WriteLine("1. Register Users");
+        Console.WriteLine("2. Remove Users");
+        Console.WriteLine("3. Update Users");
+        Console.WriteLine("4. Exit");
+
+        int option = GetOptionFromUser();
+
+        switch (option)
         {
-            userManagementService.AddNewUser(driver, userData, newUserPassword);
+            case 1:
+                AddUsers();
+                DisplayMenu();
+                break;
+            case 2:
+                RemoveUsers();
+                DisplayMenu();
+                break;
+            case 3:
+                UpdateUsers();
+                DisplayMenu();
+                break;
+            case 4:
+                Console.WriteLine("Exiting the App...");
+                break;
+            default:
+                Console.WriteLine("Invalid option. Please try again.");
+                DisplayMenu();
+                break;
         }
     }
-    catch (Exception ex)
+
+    static int GetOptionFromUser()
     {
-        Console.WriteLine($"An error occurred: {ex.Message}");
-        // Optionally log the error to a file or monitoring system
+        Console.Write("Enter the option number: ");
+        string input = Console.ReadLine() ?? string.Empty;
+        int option;
+        if (int.TryParse(input, out option))
+        {
+            return option;
+        }
+        else
+        {
+            Console.WriteLine("Invalid option. Please try again.");
+            return GetOptionFromUser();
+        }
     }
-    finally
+
+    static void AddUsers()
     {
-        webDriverService.QuitWebDriver(driver);
+        const int LEVELSTRAVERSE = 2;
+
+        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE);
+
+        string adminUsername = authenticationService.GetAdminUsername();
+        if (string.IsNullOrEmpty(adminUsername))
+        {
+            Console.WriteLine("Invalid choice. Exiting the program.");
+            return;
+        }
+
+        Console.WriteLine($"Logged in as: {adminUsername}");
+
+        string adminPassword = passwordService.PromptForPassword("Enter your admin password:");
+        string registrationPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
+
+        using (var driver = webDriverService.CreateWebDriver())
+        {
+            try
+            {
+                adminLoginService.Login(driver, adminUsername, adminPassword);
+                var userDataList = excelReaderService.ReadUserData(filePath);
+
+                foreach (var userData in userDataList)
+                {
+                    userManagementService.AddNewUser(driver, userData, registrationPassword);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                webDriverService.QuitWebDriver(driver);
+            }
+        }
+    }
+
+    static void RemoveUsers()
+    {
+        Console.WriteLine("Remove Users method is not implemented yet.");
+    }
+
+    static void UpdateUsers()
+    {
+        Console.WriteLine("Update Users method is not implemented yet.");
     }
 }
-
-/// <summary>
-/// Exits the application.
-/// </summary>
-Environment.Exit(0);
