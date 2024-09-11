@@ -1,5 +1,7 @@
 
 using Dovs.WordPressAutoKit.Interfaces;
+using Dovs.FileSystemInteractor.Interfaces;
+using Dovs.FileSystemInteractor.Services;
 using OpenQA.Selenium;
 using Dovs.WordPressAutoKit.Common;
 
@@ -10,26 +12,15 @@ namespace Dovs.WordPressAutoKit.Services
     /// </summary>  
     public class AdminLoginService : IAdminLoginService
     {
-        private readonly IConfigurationService _configurationService;
-
-        /// <summary>  
-        /// Initializes a new instance of the <see cref="AdminLoginService"/> class.  
-        /// </summary>  
-        /// <param name="configurationService">The configuration service.</param>  
-        public AdminLoginService(IConfigurationService configurationService)
-        {
-            _configurationService = configurationService;
-        }
-
         /// <summary>  
         /// Logs in to the admin panel using the provided WebDriver, username, and password.  
         /// </summary>  
         /// <param name="driver">The WebDriver instance used to perform the login.</param>  
         /// <param name="username">The admin username.</param>  
         /// <param name="password">The admin password.</param>  
-        public void Login(IWebDriver driver, string username, string password)
+        public void Login(IWebDriver driver, string loginUrl, string username, string password)
         {
-            driver.Navigate().GoToUrl(_configurationService.GetConfigValue("LoginUrl"));
+            driver.Navigate().GoToUrl(loginUrl);
             FillLoginForm(driver, username, password);
             ClickLoginButton(driver);
             System.Threading.Thread.Sleep(1000);

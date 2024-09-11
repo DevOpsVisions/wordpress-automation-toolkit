@@ -1,6 +1,8 @@
 ﻿
 using System;
 using Dovs.WordPressAutoKit.Interfaces;
+using Dovs.FileSystemInteractor.Interfaces;
+using Dovs.FileSystemInteractor.Services;
 
 namespace Dovs.WordPressAutoKit.Services
 {
@@ -9,35 +11,21 @@ namespace Dovs.WordPressAutoKit.Services
     /// </summary>  
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IConfigurationService _configurationService;
-
-        /// <summary>  
-        /// Initializes a new instance of the <see cref="AuthenticationService"/> class.  
-        /// </summary>  
-        /// <param name="configurationService">The configuration service.</param>  
-        public AuthenticationService(IConfigurationService configurationService)
-        {
-            _configurationService = configurationService;
-        }
-
         /// <summary>  
         /// Gets the admin username for login.  
         /// </summary>  
         /// <returns>The admin username.</returns>  
-        public string GetAdminUsername()
+        public string GetAdminUsername(string Admin1UserNameOrEmail, string Admin2UserNameOrEmail)
         {
-            string admin1 = _configurationService.GetConfigValue("Admin1");
-            string admin2 = _configurationService.GetConfigValue("Admin2");
-
-            Console.WriteLine($"Choose a username to login as admin: \n1. {admin1}\n2. {admin2}\n3. Other");
+            Console.WriteLine($"Choose a username to login as admin: \n1. {Admin1UserNameOrEmail}\n2. {Admin2UserNameOrEmail}\n3. Other");
             string choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    return admin1;
+                    return Admin1UserNameOrEmail;
                 case "2":
-                    return admin2;
+                    return Admin2UserNameOrEmail;
                 case "3":
                     Console.WriteLine("Enter your username:");
                     return Console.ReadLine();

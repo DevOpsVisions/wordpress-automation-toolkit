@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Ignore build results and temporary files for Dovs.FileSystemInteractor
-src/app/Dovs.FileSystemInteractor/
+src/app/Dovs.WordPressAutoKit/Libs

@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
-using Dovs.WordPressAutoKit.Common;
-using Dovs.WordPressAutoKit.Interfaces;
+﻿using Dovs.WordPressAutoKit.Interfaces;
 using Dovs.WordPressAutoKit.Services;
 using Dovs.FileSystemInteractor.Interfaces;
 using Dovs.FileSystemInteractor.Services;
+using Dovs.WordPressAutoKit;
 
 class Program
 {
@@ -21,25 +19,42 @@ class Program
     static void Main(string[] args)
     {
         InitializeServices();
-        DisplayMenu();
+
+        if (args.Length == 8)
+        {
+            var arguments = ParseArguments(args);
+            if (arguments.HasValue)
+            {
+                var (filePath, adminUsername, adminPassword, registrationPassword) = arguments.Value;
+                AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+            }
+            else
+            {
+                Console.WriteLine("Invalid arguments. Please provide all required parameters.");
+            }
+        }
+        else
+        {
+            DisplayMenu();
+        }
     }
 
     static void InitializeServices()
     {
         configurationService = new ConfigurationService();
         filePathService = new FilePathService();
-        authenticationService = new AuthenticationService(configurationService);
+        authenticationService = new AuthenticationService();
         passwordService = new PasswordService();
         webDriverService = new WebDriverService();
-        excelReaderService = new ExcelReaderService(configurationService);
-        userManagementService = new UserManagementService(new MembershipService(), configurationService);
-        adminLoginService = new AdminLoginService(configurationService);
+        excelReaderService = new ExcelReaderService();
+        userManagementService = new UserManagementService(new MembershipService());
+        adminLoginService = new AdminLoginService();
         fileInteractionService = new FileInteractionService();
     }
 
     static void DisplayMenu()
     {
-        Console.WriteLine("Welcome to Q2A Automation Toolkit!");
+        Console.WriteLine("Welcome to WordPress Automation Toolkit!");
         Console.WriteLine("Please select an option:");
         Console.WriteLine("1. Register Users");
         Console.WriteLine("2. Remove Users");
@@ -76,8 +91,7 @@ class Program
     {
         Console.Write("Enter the option number: ");
         string input = Console.ReadLine() ?? string.Empty;
-        int option;
-        if (int.TryParse(input, out option))
+        if (int.TryParse(input, out int option))
         {
             return option;
         }
@@ -92,9 +106,23 @@ class Program
     {
         const int LEVELSTRAVERSE = 2;
 
-        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE);
+        string fileExtension = GetFileExtension();
 
-        string adminUsername = authenticationService.GetAdminUsername();
+        if (string.IsNullOrEmpty(fileExtension))
+        {
+            Console.WriteLine("Invalid file extension. Exiting the program.");
+            return;
+        }
+
+        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension);
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Console.WriteLine("Invalid file path. Exiting the program.");
+            return;
+        }
+
+        string adminUsername = GetAdminUsername();
         if (string.IsNullOrEmpty(adminUsername))
         {
             Console.WriteLine("Invalid choice. Exiting the program.");
@@ -106,16 +134,35 @@ class Program
         string adminPassword = passwordService.PromptForPassword("Enter your admin password:");
         string registrationPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
 
+        AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+    }
+
+    private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword)
+    {
+        if (string.IsNullOrEmpty(adminUsername))
+        {
+            Console.WriteLine("Invalid admin username. Exiting the program.");
+            return;
+        }
+
+        string loginUrl = configurationService.GetConfigValue("LoginUrl");
+        string postRegisterRole = configurationService.GetConfigValue("PostRegisterRole");
+        string addNewUserUrl = configurationService.GetConfigValue("AddNewUserUrl");
+        string preRegisterRole = configurationService.GetConfigValue("PreRegisterRole");
+
         using (var driver = webDriverService.CreateWebDriver())
         {
             try
             {
-                adminLoginService.Login(driver, adminUsername, adminPassword);
-                var userDataList = excelReaderService.ReadUserData(filePath);
+                adminLoginService.Login(driver, loginUrl, adminUsername, adminPassword);
 
-                foreach (var userData in userDataList)
+                var columnNames = configurationService.GetColumnNames("ColumnNames");
+                var dataList = excelReaderService.ReadData(filePath, columnNames);
+
+                foreach (var data in dataList)
                 {
-                    userManagementService.AddNewUser(driver, userData, registrationPassword);
+                    var userData = new UserData(data["Username"], data["Email"], data["Membership"]);
+                    userManagementService.AddNewUser(driver, userData, registrationPassword, postRegisterRole, addNewUserUrl, preRegisterRole);
                 }
             }
             catch (Exception ex)
@@ -127,6 +174,46 @@ class Program
                 webDriverService.QuitWebDriver(driver);
             }
         }
+    }
+
+    private static string GetFileExtension()
+    {
+        Console.WriteLine("Please select the file type or specify the extension:\n1. Excel (.xlsx)\n2. Markdown (.md)\n3. CSV (.csv)\nPress Enter to select Excel (.xlsx) by default.");
+        string input = Console.ReadLine() ?? string.Empty;
+
+        return input switch
+        {
+            "1" => ".xlsx",
+            "2" => ".md",
+            "3" => ".csv",
+            "" => ".xlsx", // Default to Excel if Enter is pressed
+            _ => input // Assume the user specified the extension directly
+        };
+    }
+
+    private static string GetAdminUsername()
+    {
+        string Admin1UserNameOrEmail = configurationService.GetConfigValue("Admin1UserNameOrEmail");
+        string Admin2UserNameOrEmail = configurationService.GetConfigValue("Admin2UserNameOrEmail");
+
+        return authenticationService.GetAdminUsername(Admin1UserNameOrEmail, Admin2UserNameOrEmail);
+    }
+
+    private static (string FilePath, string AdminUsername, string AdminPassword, string RegistrationPassword)? ParseArguments(string[] args)
+    {
+        var arguments = args.Select((value, index) => new { value, index })
+                            .GroupBy(x => x.index / 2)
+                            .ToDictionary(g => g.First().value, g => g.Last().value);
+
+        if (arguments.TryGetValue("-filePath", out string filePath) &&
+            arguments.TryGetValue("-adminUsername", out string adminUsername) &&
+            arguments.TryGetValue("-adminPassword", out string adminPassword) &&
+            arguments.TryGetValue("-registrationPassword", out string registrationPassword))
+        {
+            return (filePath, adminUsername, adminPassword, registrationPassword);
+        }
+
+        return null;
     }
 
     static void RemoveUsers()

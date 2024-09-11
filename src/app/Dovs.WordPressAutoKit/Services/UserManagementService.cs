@@ -1,4 +1,6 @@
 ﻿using Dovs.WordPressAutoKit.Interfaces;
+using Dovs.FileSystemInteractor.Interfaces;
+using Dovs.FileSystemInteractor.Services;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using Dovs.WordPressAutoKit.Common;
@@ -11,17 +13,15 @@ namespace Dovs.WordPressAutoKit.Services
     public class UserManagementService : IUserManagementService
     {
         private readonly IMembershipService _membershipUpdater;
-        private readonly IConfigurationService _configurationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserManagementService"/> class.
         /// </summary>
         /// <param name="membershipUpdater">The membership service to update membership levels.</param>
         /// <param name="configurationService">The configuration service to retrieve configuration values.</param>
-        public UserManagementService(IMembershipService membershipUpdater, IConfigurationService configurationService)
+        public UserManagementService(IMembershipService membershipUpdater)
         {
             _membershipUpdater = membershipUpdater;
-            _configurationService = configurationService;
         }
 
         /// <summary>
@@ -30,14 +30,13 @@ namespace Dovs.WordPressAutoKit.Services
         /// <param name="driver">The web driver used to interact with the web page.</param>
         /// <param name="userData">The user data containing user details.</param>
         /// <param name="password">The password for the new user.</param>
-        public void AddNewUser(IWebDriver driver, UserData userData, string password)
+        public void AddNewUser(IWebDriver driver, UserData userData, string password, string postRegisterRole, string addNewUserUrl, string preRegisterRole)
         {
-            NavigateToAddNewUserPage(driver);
-            FillUserDetails(driver, userData, password);
+            NavigateToAddNewUserPage(driver, addNewUserUrl);
+            FillUserDetails(driver, userData, password, preRegisterRole);
             SubmitAddingForm(driver);
             string confirmationUrl = GetConfirmationUrl(driver);
             NavigateToUrl(driver, confirmationUrl);
-            string postRegisterRole = GetConfigValue("PostRegisterRole");
             UpdateUserRole(driver, postRegisterRole);
             _membershipUpdater.UpdateMembershipLevel(driver, userData.Membership);
             SaveChanges(driver);
@@ -47,9 +46,9 @@ namespace Dovs.WordPressAutoKit.Services
         /// Navigates to the add new user page.
         /// </summary>
         /// <param name="driver">The web driver used to interact with the web page.</param>
-        private void NavigateToAddNewUserPage(IWebDriver driver)
+        private void NavigateToAddNewUserPage(IWebDriver driver, string addNewUserUrl)
         {
-            driver.Navigate().GoToUrl(GetConfigValue("AddNewUserUrl"));
+            driver.Navigate().GoToUrl(addNewUserUrl);
         }
 
         /// <summary>
@@ -58,11 +57,10 @@ namespace Dovs.WordPressAutoKit.Services
         /// <param name="driver">The web driver used to interact with the web page.</param>
         /// <param name="userData">The user data containing user details.</param>
         /// <param name="password">The password for the new user.</param>
-        private void FillUserDetails(IWebDriver driver, UserData userData, string password)
+        private void FillUserDetails(IWebDriver driver, UserData userData, string password, string preRegisterRole)
         {
             FillBasicDetails(driver, userData);
             FillPassword(driver, password);
-            string preRegisterRole = GetConfigValue("PreRegisterRole");
             SelectUserRole(driver, preRegisterRole);
         }
 
@@ -161,16 +159,6 @@ namespace Dovs.WordPressAutoKit.Services
         {
             driver.FindElement(By.Id(ElementIds.UPDATE_USER_BUTTON)).Click();
             System.Threading.Thread.Sleep(1000);
-        }
-
-        /// <summary>
-        /// Gets the configuration value for the specified key.
-        /// </summary>
-        /// <param name="key">The configuration key.</param>
-        /// <returns>The configuration value.</returns>
-        private string GetConfigValue(string key)
-        {
-            return _configurationService.GetConfigValue(key);
         }
     }
 }

@@ -14,6 +14,6 @@ namespace Dovs.WordPressAutoKit.Interfaces
         /// <param name="driver">The WebDriver instance used to perform the login.</param>
         /// <param name="username">The admin username.</param>
         /// <param name="password">The admin password.</param>
-        void Login(IWebDriver driver, string username, string password);
+        void Login(IWebDriver driver, string loginUrl, string username, string password);
     }
 }
