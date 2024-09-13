@@ -3,19 +3,10 @@ using Dovs.WordPressAutoKit.Services;
 using Dovs.FileSystemInteractor.Interfaces;
 using Dovs.FileSystemInteractor.Services;
 using Dovs.WordPressAutoKit;
+using Dovs.CommonComponents;
 
 class Program
 {
-    private static IConfigurationService? configurationService;
-    private static IFilePathService? filePathService;
-    private static IAuthenticationService? authenticationService;
-    private static IPasswordService? passwordService;
-    private static IWebDriverService? webDriverService;
-    private static IExcelReaderService? excelReaderService;
-    private static IUserManagementService? userManagementService;
-    private static IAdminLoginService? adminLoginService;
-    private static IFileInteractionService? fileInteractionService;
-
     static void Main(string[] args)
     {
         InitializeServices();
@@ -26,7 +17,7 @@ class Program
             if (arguments.HasValue)
             {
                 var (filePath, adminUsername, adminPassword, registrationPassword) = arguments.Value;
-                AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+                //AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
             }
             else
             {
@@ -39,22 +30,9 @@ class Program
         }
     }
 
-    static void InitializeServices()
+    private static void DisplayMenu()
     {
-        configurationService = new ConfigurationService();
-        filePathService = new FilePathService();
-        authenticationService = new AuthenticationService();
-        passwordService = new PasswordService();
-        webDriverService = new WebDriverService();
-        excelReaderService = new ExcelReaderService();
-        userManagementService = new UserManagementService(new MembershipService());
-        adminLoginService = new AdminLoginService();
-        fileInteractionService = new FileInteractionService();
-    }
-
-    static void DisplayMenu()
-    {
-        Console.WriteLine("Welcome to WordPress Automation Toolkit!");
+        Console.WriteLine(CoreUtilities.CreateWelcomeMessage("WordPress Automation Toolkit"));
         Console.WriteLine("Please select an option:");
         Console.WriteLine("1. Register Users");
         Console.WriteLine("2. Remove Users");
@@ -87,7 +65,7 @@ class Program
         }
     }
 
-    static int GetOptionFromUser()
+    private static int GetOptionFromUser()
     {
         Console.Write("Enter the option number: ");
         string input = Console.ReadLine() ?? string.Empty;
@@ -102,19 +80,9 @@ class Program
         }
     }
 
-    static void AddUsers()
+    private static void AddUsers()
     {
-        const int LEVELSTRAVERSE = 2;
-
-        string fileExtension = GetFileExtension();
-
-        if (string.IsNullOrEmpty(fileExtension))
-        {
-            Console.WriteLine("Invalid file extension. Exiting the program.");
-            return;
-        }
-
-        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension);
+        string filePath = GetFilePathWithExtension();
 
         if (string.IsNullOrEmpty(filePath))
         {
@@ -131,24 +99,19 @@ class Program
 
         Console.WriteLine($"Logged in as: {adminUsername}");
 
-        string adminPassword = passwordService.PromptForPassword("Enter your admin password:");
-        string registrationPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
+        var (adminPassword, registrationPassword) = GetPasswords();
+        var (loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole) = LoadRegistrationConfig();
 
-        AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+        AddUsers(filePath, adminUsername, adminPassword, registrationPassword, loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole);
     }
 
-    private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword)
+    private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword, string loginUrl, string postRegisterRole, string addNewUserUrl, string preRegisterRole)
     {
         if (string.IsNullOrEmpty(adminUsername))
         {
             Console.WriteLine("Invalid admin username. Exiting the program.");
             return;
         }
-
-        string loginUrl = configurationService.GetConfigValue("LoginUrl");
-        string postRegisterRole = configurationService.GetConfigValue("PostRegisterRole");
-        string addNewUserUrl = configurationService.GetConfigValue("AddNewUserUrl");
-        string preRegisterRole = configurationService.GetConfigValue("PreRegisterRole");
 
         using (var driver = webDriverService.CreateWebDriver())
         {
@@ -216,13 +179,75 @@ class Program
         return null;
     }
 
-    static void RemoveUsers()
+    private static void RemoveUsers()
     {
         Console.WriteLine("Remove Users method is not implemented yet.");
     }
 
-    static void UpdateUsers()
+    private static void UpdateUsers()
     {
         Console.WriteLine("Update Users method is not implemented yet.");
     }
+
+    private static void InitializeServices()
+    {
+        configurationService = new ConfigurationService();
+        filePathService = new FilePathService();
+        authenticationService = new AuthenticationService();
+        passwordService = new PasswordService();
+        webDriverService = new WebDriverService();
+        excelReaderService = new ExcelReaderService();
+        userManagementService = new UserManagementService(new MembershipService());
+        adminLoginService = new AdminLoginService();
+        fileInteractionService = new FileInteractionService();
+    }
+
+    private static string GetFilePathWithExtension()
+    {
+        const int LEVELSTRAVERSE = 2;
+
+        string fileExtension = GetFileExtension();
+
+        if (string.IsNullOrEmpty(fileExtension))
+        {
+            Console.WriteLine("Invalid file extension. Exiting the program.");
+            return string.Empty;
+        }
+
+        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension);
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Console.WriteLine("Invalid file path. Exiting the program.");
+            return string.Empty;
+        }
+
+        return filePath;
+    }
+
+    private static (string AdminPassword, string RegistrationPassword) GetPasswords()
+    {
+        string adminPassword = passwordService.PromptForPassword("Enter your admin password:");
+        string registrationPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
+        return (adminPassword, registrationPassword);
+    }
+
+    private static (string LoginUrl, string PostRegisterRole, string AddNewUserUrl, string PreRegisterRole) LoadRegistrationConfig()
+    {
+        string loginUrl = configurationService.GetConfigValue("LoginUrl");
+        string postRegisterRole = configurationService.GetConfigValue("PostRegisterRole");
+        string addNewUserUrl = configurationService.GetConfigValue("AddNewUserUrl");
+        string preRegisterRole = configurationService.GetConfigValue("PreRegisterRole");
+        return (loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole);
+    }
+
+    private static IConfigurationService? configurationService;
+    private static IFilePathService? filePathService;
+    private static IAuthenticationService? authenticationService;
+    private static IPasswordService? passwordService;
+    private static IWebDriverService? webDriverService;
+    private static IExcelReaderService? excelReaderService;
+    private static IUserManagementService? userManagementService;
+    private static IAdminLoginService? adminLoginService;
+    private static IFileInteractionService? fileInteractionService;
 }
