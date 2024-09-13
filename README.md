@@ -24,3 +24,32 @@ By leveraging Selenium WebDriver, the application can interact with web pages an
 - [Selenium WebDriver](https://www.selenium.dev/) (ChromeDriver)
 - [ExcelDataReader](https://github.com/ExcelDataReader/ExcelDataReader) library for reading Excel files.
 - Google Chrome browser installed.
+
+## Documentation
+
+### Generating Documentation
+
+To generate the technical documentation for the project, follow these steps:
+
+1. Install [DocFX](https://dotnet.github.io/docfx/):
+   ```sh
+   choco install docfx -y
+   ```
+
+2. Navigate to the `docs` directory:
+   ```sh
+   cd docs
+   ```
+
+3. Run DocFX to generate the documentation:
+   ```sh
+   docfx
+   ```
+
+The generated documentation will be available in the `_site` directory.
+
+### Accessing Documentation
+
+The documentation is hosted on GitHub Pages and can be accessed at the following URL:
+
+[https://devopsvisions.github.io/wordpress-automation-toolkit/](https://devopsvisions.github.io/wordpress-automation-toolkit/)

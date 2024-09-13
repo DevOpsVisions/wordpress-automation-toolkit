@@ -1,0 +1,19 @@
+# Ignore DocFX output directory
+_site/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+*.swo
+*.DS_Store
+*.idea/
+*.vscode/
+*.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.userprefs
+mono_crash.*

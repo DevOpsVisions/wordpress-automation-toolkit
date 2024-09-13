@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{_appTitle}}</title>
+    <link rel="stylesheet" href="{{basePath}}styles/custom.css">
+</head>
+<body>
+    <header>
+        <h1>{{_appTitle}}</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="{{basePath}}index.html">Home</a></li>
+            <li><a href="{{basePath}}articles/overview.html">Overview</a></li>
+            <li><a href="{{basePath}}articles/getting-started.html">Getting Started</a></li>
+            <li><a href="{{basePath}}articles/configuration.html">Configuration</a></li>
+            <li><a href="{{basePath}}articles/deployment.html">Deployment</a></li>
+            <li><a href="{{basePath}}articles/troubleshooting.html">Troubleshooting</a></li>
+            <li><a href="{{basePath}}articles/faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+    <main>
+        {{> content}}
+    </main>
+    <footer>
+        <p>{{_appFooter}}</p>
+    </footer>
+</body>
+</html>
