@@ -39,7 +39,8 @@ namespace Dovs.WordPressAutoKit.Services
             NavigateToUrl(driver, confirmationUrl);
             UpdateUserRole(driver, postRegisterRole);
             _membershipUpdater.UpdateMembershipLevel(driver, userData.Membership);
-            SaveChanges(driver);
+            NavigateToUrl(driver, addNewUserUrl);
+
         }
 
         /// <summary>
@@ -149,6 +150,7 @@ namespace Dovs.WordPressAutoKit.Services
             var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLE_SELECTION));
             var selectElement = new SelectElement(roleDropdown);
             selectElement.SelectByValue(role);
+            SaveChanges(driver);
         }
 
         /// <summary>
