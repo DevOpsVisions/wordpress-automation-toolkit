@@ -4,6 +4,8 @@ using Dovs.FileSystemInteractor.Interfaces;
 using Dovs.FileSystemInteractor.Services;
 using Dovs.WordPressAutoKit;
 using Dovs.CommonComponents;
+using System;
+using OpenQA.Selenium;
 
 class Program
 {
@@ -17,7 +19,6 @@ class Program
             if (arguments.HasValue)
             {
                 var (filePath, adminUsername, adminPassword, registrationPassword) = arguments.Value;
-                //AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
             }
             else
             {
@@ -83,50 +84,29 @@ class Program
     private static void AddUsers()
     {
         string filePath = GetFilePathWithExtension();
-
-        if (string.IsNullOrEmpty(filePath))
-        {
-            Console.WriteLine("Invalid file path. Exiting the program.");
-            return;
-        }
+        if (string.IsNullOrEmpty(filePath)) return;
 
         string adminUsername = GetAdminUsername();
-        if (string.IsNullOrEmpty(adminUsername))
+        if (string.IsNullOrEmpty(adminUsername)) return;
+
+        string adminPassword = GetAdminPassword();
+        if (string.IsNullOrEmpty(adminPassword)) return;
+
+        string registrationPassword = GetRegistrationPassword();
+        if (string.IsNullOrEmpty(registrationPassword)) return;
+
+        using (var driver = webDriverService?.CreateWebDriver())
         {
-            Console.WriteLine("Invalid choice. Exiting the program.");
-            return;
-        }
+            if (driver == null)
+            {
+                Console.WriteLine("Failed to create WebDriver. Exiting the program.");
+                return;
+            }
 
-        Console.WriteLine($"Logged in as: {adminUsername}");
-
-        var (adminPassword, registrationPassword) = GetPasswords();
-        var (loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole) = LoadRegistrationConfig();
-
-        AddUsers(filePath, adminUsername, adminPassword, registrationPassword, loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole);
-    }
-
-    private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword, string loginUrl, string postRegisterRole, string addNewUserUrl, string preRegisterRole)
-    {
-        if (string.IsNullOrEmpty(adminUsername))
-        {
-            Console.WriteLine("Invalid admin username. Exiting the program.");
-            return;
-        }
-
-        using (var driver = webDriverService.CreateWebDriver())
-        {
             try
             {
-                adminLoginService.Login(driver, loginUrl, adminUsername, adminPassword);
-
-                var columnNames = configurationService.GetColumnNames("ColumnNames");
-                var dataList = excelReaderService.ReadData(filePath, columnNames);
-
-                foreach (var data in dataList)
-                {
-                    var userData = new UserData(data["Username"], data["Email"], data["Membership"]);
-                    userManagementService.AddNewUser(driver, userData, registrationPassword, postRegisterRole, addNewUserUrl, preRegisterRole);
-                }
+                AdminLogin(driver, adminUsername, adminPassword);
+                AddUsers(driver, filePath, registrationPassword);
             }
             catch (Exception ex)
             {
@@ -134,9 +114,52 @@ class Program
             }
             finally
             {
-                webDriverService.QuitWebDriver(driver);
+                webDriverService?.QuitWebDriver(driver);
             }
         }
+    }
+
+    private static void AdminLogin(IWebDriver driver, string adminUsername, string adminPassword)
+    {
+        string loginUrl = configurationService?.GetConfigValue("LoginUrl") ?? string.Empty;
+        adminLoginService?.Login(driver, loginUrl, adminUsername, adminPassword);
+    }
+
+    private static void AddUsers(IWebDriver driver, string filePath, string registrationPassword)
+    {
+        string addNewUserUrl = configurationService?.GetConfigValue("AddNewUserUrl") ?? string.Empty;
+        var columnNames = configurationService?.GetColumnNames("ColumnNames") ?? new List<string>();
+        var dataList = excelReaderService?.ReadData(filePath, columnNames) ?? new List<Dictionary<string, string>>();
+        var role = configurationService?.GetConfigValue("PostRegisterRole") ?? string.Empty;
+
+        foreach (var data in dataList)
+        {
+            var userData = new UserData(data["Username"], data["Email"], data["Membership"]);
+            userManagementService?.AddNewUser(driver, userData, registrationPassword, addNewUserUrl);
+            roleService?.UpdateRole(driver, role);
+            membershipService?.AddMembership(driver, data["Membership"]);
+        }
+    }
+
+    private static string GetFilePathWithExtension()
+    {
+        const int LEVELSTRAVERSE = 2;
+
+        string fileExtension = GetFileExtension();
+        if (string.IsNullOrEmpty(fileExtension))
+        {
+            Console.WriteLine("Invalid file extension. Exiting the program.");
+            return string.Empty;
+        }
+
+        string filePath = fileInteractionService?.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension) ?? string.Empty;
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Console.WriteLine("Invalid file path. Exiting the program.");
+            return string.Empty;
+        }
+
+        return filePath;
     }
 
     private static string GetFileExtension()
@@ -156,9 +179,28 @@ class Program
 
     private static string GetAdminUsername()
     {
-        string adminUserNames = configurationService.GetConfigValue("AdminUserNames");
+        string adminUserNames = configurationService?.GetConfigValue("AdminUserNames") ?? string.Empty;
+        return authenticationService?.GetAdminUsername(adminUserNames) ?? string.Empty;
+    }
 
-        return authenticationService.GetAdminUsername(adminUserNames);
+    private static string GetAdminPassword()
+    {
+        string adminPassword = passwordService?.PromptForPassword("Enter your admin password:") ?? string.Empty;
+        if (string.IsNullOrEmpty(adminPassword))
+        {
+            Console.WriteLine("Invalid password. Exiting the program.");
+        }
+        return adminPassword;
+    }
+
+    private static string GetRegistrationPassword()
+    {
+        string registrationPassword = passwordService?.PromptForPassword("Enter the password to use for registration:") ?? string.Empty;
+        if (string.IsNullOrEmpty(registrationPassword))
+        {
+            Console.WriteLine("Invalid registration password. Exiting the program.");
+        }
+        return registrationPassword;
     }
 
     private static (string FilePath, string AdminUsername, string AdminPassword, string RegistrationPassword)? ParseArguments(string[] args)
@@ -167,10 +209,10 @@ class Program
                             .GroupBy(x => x.index / 2)
                             .ToDictionary(g => g.First().value, g => g.Last().value);
 
-        if (arguments.TryGetValue("-filePath", out string filePath) &&
-            arguments.TryGetValue("-adminUsername", out string adminUsername) &&
-            arguments.TryGetValue("-adminPassword", out string adminPassword) &&
-            arguments.TryGetValue("-registrationPassword", out string registrationPassword))
+        if (arguments.TryGetValue("-filePath", out string? filePath) &&
+            arguments.TryGetValue("-adminUsername", out string? adminUsername) &&
+            arguments.TryGetValue("-adminPassword", out string? adminPassword) &&
+            arguments.TryGetValue("-registrationPassword", out string? registrationPassword))
         {
             return (filePath, adminUsername, adminPassword, registrationPassword);
         }
@@ -196,48 +238,11 @@ class Program
         passwordService = new PasswordService();
         webDriverService = new WebDriverService();
         excelReaderService = new ExcelReaderService();
-        userManagementService = new UserManagementService(new MembershipService());
+        userManagementService = new UserManagementService();
+        roleService = new RoleService();
+        membershipService = new MembershipService();
         adminLoginService = new AdminLoginService();
         fileInteractionService = new FileInteractionService();
-    }
-
-    private static string GetFilePathWithExtension()
-    {
-        const int LEVELSTRAVERSE = 2;
-
-        string fileExtension = GetFileExtension();
-
-        if (string.IsNullOrEmpty(fileExtension))
-        {
-            Console.WriteLine("Invalid file extension. Exiting the program.");
-            return string.Empty;
-        }
-
-        string filePath = fileInteractionService.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension);
-
-        if (string.IsNullOrEmpty(filePath))
-        {
-            Console.WriteLine("Invalid file path. Exiting the program.");
-            return string.Empty;
-        }
-
-        return filePath;
-    }
-
-    private static (string AdminPassword, string RegistrationPassword) GetPasswords()
-    {
-        string adminPassword = passwordService.PromptForPassword("Enter your admin password:");
-        string registrationPassword = passwordService.PromptForPassword("Enter the password to use for registration:");
-        return (adminPassword, registrationPassword);
-    }
-
-    private static (string LoginUrl, string PostRegisterRole, string AddNewUserUrl, string PreRegisterRole) LoadRegistrationConfig()
-    {
-        string loginUrl = configurationService.GetConfigValue("LoginUrl");
-        string postRegisterRole = configurationService.GetConfigValue("PostRegisterRole");
-        string addNewUserUrl = configurationService.GetConfigValue("AddNewUserUrl");
-        string preRegisterRole = configurationService.GetConfigValue("PreRegisterRole");
-        return (loginUrl, postRegisterRole, addNewUserUrl, preRegisterRole);
     }
 
     private static IConfigurationService? configurationService;
@@ -247,6 +252,8 @@ class Program
     private static IWebDriverService? webDriverService;
     private static IExcelReaderService? excelReaderService;
     private static IUserManagementService? userManagementService;
+    private static IRoleService? roleService;
+    private static IMembershipService? membershipService;
     private static IAdminLoginService? adminLoginService;
     private static IFileInteractionService? fileInteractionService;
 }

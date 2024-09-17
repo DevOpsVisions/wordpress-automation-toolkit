@@ -12,6 +12,6 @@ namespace Dovs.WordPressAutoKit.Interfaces
         /// </summary>
         /// <param name="driver">The WebDriver instance used to perform the update.</param>
         /// <param name="membershipLevel">The new membership level to be assigned.</param>
-        void UpdateMembershipLevel(IWebDriver driver, string membershipLevel);
+        void AddMembership(IWebDriver driver, string membershipLevel);
     }
 }

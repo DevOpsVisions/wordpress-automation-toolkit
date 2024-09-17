@@ -1,6 +1,5 @@
 ﻿using Dovs.WordPressAutoKit.Interfaces;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using Dovs.WordPressAutoKit.Common;
 
 namespace Dovs.WordPressAutoKit.Services
@@ -10,35 +9,18 @@ namespace Dovs.WordPressAutoKit.Services
     /// </summary>
     public class UserManagementService : IUserManagementService
     {
-        private readonly IMembershipService _membershipUpdater;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserManagementService"/> class.
-        /// </summary>
-        /// <param name="membershipUpdater">The membership service to update membership levels.</param>
-        /// <param name="configurationService">The configuration service to retrieve configuration values.</param>
-        public UserManagementService(IMembershipService membershipUpdater)
-        {
-            _membershipUpdater = membershipUpdater;
-        }
-
         /// <summary>
         /// Adds a new user with the specified details.
         /// </summary>
         /// <param name="driver">The web driver used to interact with the web page.</param>
         /// <param name="userData">The user data containing user details.</param>
         /// <param name="password">The password for the new user.</param>
-        public void AddNewUser(IWebDriver driver, UserData userData, string password, string postRegisterRole, string addNewUserUrl, string preRegisterRole)
+        public void AddNewUser(IWebDriver driver, UserData userData, string password,  string addNewUserUrl)
         {
             NavigateToAddNewUserPage(driver, addNewUserUrl);
-            FillUserDetails(driver, userData, password, preRegisterRole);
+            FillUserDetails(driver, userData, password);
             SubmitAddingForm(driver);
-            string confirmationUrl = GetConfirmationUrl(driver);
-            NavigateToUrl(driver, confirmationUrl);
-            UpdateUserRole(driver, postRegisterRole);
-            _membershipUpdater.UpdateMembershipLevel(driver, userData.Membership);
-            NavigateToUrl(driver, addNewUserUrl);
-
+            NavigateToUrl(driver, GetConfirmationUrl(driver));
         }
 
         /// <summary>
@@ -56,11 +38,10 @@ namespace Dovs.WordPressAutoKit.Services
         /// <param name="driver">The web driver used to interact with the web page.</param>
         /// <param name="userData">The user data containing user details.</param>
         /// <param name="password">The password for the new user.</param>
-        private void FillUserDetails(IWebDriver driver, UserData userData, string password, string preRegisterRole)
+        private void FillUserDetails(IWebDriver driver, UserData userData, string password)
         {
             FillBasicDetails(driver, userData);
             FillPassword(driver, password);
-            SelectUserRole(driver, preRegisterRole);
         }
 
         /// <summary>
@@ -94,18 +75,6 @@ namespace Dovs.WordPressAutoKit.Services
         }
 
         /// <summary>
-        /// Selects the user role from the dropdown.
-        /// </summary>
-        /// <param name="driver">The web driver used to interact with the web page.</param>
-        /// <param name="role">The role to select.</param>
-        private static void SelectUserRole(IWebDriver driver, string role)
-        {
-            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLE_SELECTION));
-            var selectElement = new SelectElement(roleDropdown);
-            selectElement.SelectByValue(role);
-        }
-
-        /// <summary>
         /// Submits the add new user form.
         /// </summary>
         /// <param name="driver">The web driver used to interact with the web page.</param>
@@ -135,29 +104,6 @@ namespace Dovs.WordPressAutoKit.Services
         private static void NavigateToUrl(IWebDriver driver, string url)
         {
             driver.Navigate().GoToUrl(url);
-            System.Threading.Thread.Sleep(1000);
-        }
-
-        /// <summary>
-        /// Updates the user role.
-        /// </summary>
-        /// <param name="driver">The web driver used to interact with the web page.</param>
-        /// <param name="role">The role to update to.</param>
-        private static void UpdateUserRole(IWebDriver driver, string role)
-        {
-            var roleDropdown = driver.FindElement(By.Id(ElementIds.ROLE_SELECTION));
-            var selectElement = new SelectElement(roleDropdown);
-            selectElement.SelectByValue(role);
-            SaveChanges(driver);
-        }
-
-        /// <summary>
-        /// Saves the changes made to the user.
-        /// </summary>
-        /// <param name="driver">The web driver used to interact with the web page.</param>
-        private static void SaveChanges(IWebDriver driver)
-        {
-            driver.FindElement(By.Id(ElementIds.UPDATE_USER_BUTTON)).Click();
             System.Threading.Thread.Sleep(1000);
         }
     }
