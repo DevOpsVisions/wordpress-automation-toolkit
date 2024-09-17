@@ -156,10 +156,9 @@ class Program
 
     private static string GetAdminUsername()
     {
-        string Admin1UserNameOrEmail = configurationService.GetConfigValue("Admin1UserNameOrEmail");
-        string Admin2UserNameOrEmail = configurationService.GetConfigValue("Admin2UserNameOrEmail");
+        string adminUserNames = configurationService.GetConfigValue("AdminUserNames");
 
-        return authenticationService.GetAdminUsername(Admin1UserNameOrEmail, Admin2UserNameOrEmail);
+        return authenticationService.GetAdminUsername(adminUserNames);
     }
 
     private static (string FilePath, string AdminUsername, string AdminPassword, string RegistrationPassword)? ParseArguments(string[] args)

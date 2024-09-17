@@ -1,8 +1,4 @@
-﻿
-using System;
-using Dovs.WordPressAutoKit.Interfaces;
-using Dovs.FileSystemInteractor.Interfaces;
-using Dovs.FileSystemInteractor.Services;
+﻿using Dovs.WordPressAutoKit.Interfaces;
 
 namespace Dovs.WordPressAutoKit.Services
 {
@@ -14,24 +10,40 @@ namespace Dovs.WordPressAutoKit.Services
         /// <summary>  
         /// Gets the admin username for login.  
         /// </summary>  
+        /// <param name="adminUserNames">Comma-separated admin usernames.</param>
         /// <returns>The admin username.</returns>  
-        public string GetAdminUsername(string Admin1UserNameOrEmail, string Admin2UserNameOrEmail)
+        public string GetAdminUsername(string adminUserNames)
         {
-            Console.WriteLine($"Choose a username to login as admin: \n1. {Admin1UserNameOrEmail}\n2. {Admin2UserNameOrEmail}\n3. Other");
-            string choice = Console.ReadLine();
+            var usernames = adminUserNames.Split(',');
 
-            switch (choice)
+            if (usernames.Length < 2)
             {
-                case "1":
-                    return Admin1UserNameOrEmail;
-                case "2":
-                    return Admin2UserNameOrEmail;
-                case "3":
+                throw new ArgumentException("Please provide at least two admin usernames separated by a comma.");
+            }
+
+            Console.WriteLine("Choose a username to login as admin:");
+            for (int i = 0; i < usernames.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {usernames[i].Trim()}");
+            }
+            Console.WriteLine($"{usernames.Length + 1}. Other");
+
+            string choice = Console.ReadLine();
+            int choiceNumber;
+            if (int.TryParse(choice, out choiceNumber))
+            {
+                if (choiceNumber >= 1 && choiceNumber <= usernames.Length)
+                {
+                    return usernames[choiceNumber - 1].Trim();
+                }
+                else if (choiceNumber == usernames.Length + 1)
+                {
                     Console.WriteLine("Enter your username:");
                     return Console.ReadLine();
-                default:
-                    return null;
+                }
             }
+
+            return null;
         }
     }
 }

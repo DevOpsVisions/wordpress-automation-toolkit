@@ -1,7 +1,4 @@
-
 using Dovs.WordPressAutoKit.Interfaces;
-using Dovs.FileSystemInteractor.Interfaces;
-using Dovs.FileSystemInteractor.Services;
 using OpenQA.Selenium;
 using Dovs.WordPressAutoKit.Common;
 
