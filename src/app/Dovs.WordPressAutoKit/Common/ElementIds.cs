@@ -58,9 +58,24 @@ namespace Dovs.WordPressAutoKit.Common
         public const string CONFIRMATION_DIV = "message";
 
         /// <summary>
+        /// The HTML element ID for the first button to add membership.
+        /// </summary>
+        public const string ADD_MEMBERSHIP_FIRST_BUTTON = "a.button.button-secondary[href*='pmpro_member_edit_panel=memberships']";
+
+        /// <summary>
+        /// The HTML element ID for the second button to add membership.
+        /// </summary>
+        public const string ADD_MEMBERSHIP_SECOND_BUTTON = "a.pmpro-member-change-level";
+
+        /// <summary>
+        /// The HTML element ID for the save button to add membership.
+        /// </summary>
+        public const string ADD_MEMBERSHIP_SAVE_BUTTON = "button.button.button-primary";
+
+        /// <summary>
         /// The HTML element ID for the membership level dropdown.
         /// </summary>
-        public const string MEMBERSHIP_LEVEL_DROP = "membership_level";
+        public const string MEMBERSHIP_LEVEL_DROP = "pmpro-member-edit-memberships-panel-add_level_to_group_1[level_id]";
 
         /// <summary>
         /// The HTML element ID for the update user button.
