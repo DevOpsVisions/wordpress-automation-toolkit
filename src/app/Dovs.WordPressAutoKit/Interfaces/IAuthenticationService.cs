@@ -1,4 +1,5 @@
-﻿namespace Dovs.WordPressAutoKit.Interfaces
+﻿
+namespace Dovs.WordPressAutoKit.Interfaces
 {
     /// <summary>
     /// Interface for authentication service.

@@ -15,7 +15,7 @@ namespace Dovs.WordPressAutoKit.Services
         /// </summary>
         /// <param name="driver">The web driver used to interact with the web page.</param>
         /// <param name="membershipLevel">The membership level to select.</param>
-        public void UpdateMembershipLevel(IWebDriver driver, string membershipLevel)
+        public void AddMembership(IWebDriver driver, string membershipLevel)
         {
             // Step 1: Click on the first <a> link with class 'button button-secondary' to redirect to the membership edit page
             var addMembershipFirstButton = driver.FindElement(By.CssSelector(ElementIds.ADD_MEMBERSHIP_FIRST_BUTTON));

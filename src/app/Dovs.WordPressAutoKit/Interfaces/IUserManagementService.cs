@@ -13,6 +13,6 @@ namespace Dovs.WordPressAutoKit.Interfaces
         /// <param name="driver">The WebDriver instance used to perform the operation.</param>
         /// <param name="userData">The data of the user to be added.</param>
         /// <param name="password">The password for the new user.</param>
-        void AddNewUser(IWebDriver driver, UserData userData, string password, string postRegisterRole, string addNewUserUrl, string preRegisterRole);
+        void AddNewUser(IWebDriver driver, UserData userData, string password, string addNewUserUrl);
     }
 }
