@@ -2,7 +2,6 @@
 variable "env_name" {
   description = "The name of the environment"
   type        = string
-  default     = "q2a-test-uksouth-001"
 }
 
 variable "resource_group_name" {
