@@ -49,20 +49,30 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: 'Debug Variables'
+        run: |
+          echo "App Name: ${{ env.TF_VAR_app_name }}"
+          echo "Environment: ${{ env.TF_VAR_environment }}"
+          echo "Location: ${{ env.TF_VAR_location }}"
+          echo "Instance: ${{ env.TF_VAR_instance }}"
+          echo "Provisioner Script: ${{ env.TF_VAR_provisioner_script }}"
+          
+
       - name: 'Terraform Plan'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: terraform plan \
-              -var="app_name=${{ env.TF_VAR_app_name }}" \
-              -var="environment=${{ env.TF_VAR_environment }}" \
-              -var="location=${{ env.TF_VAR_location }}" \
-              -var="instance=${{ env.TF_VAR_instance }}" \
-              -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
-              -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
-              -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
+        run: |
+          terraform plan \
+            -var="app_name=${{ env.TF_VAR_app_name }}" \
+            -var="environment=${{ env.TF_VAR_environment }}" \
+            -var="location=${{ env.TF_VAR_location }}" \
+            -var="instance=${{ env.TF_VAR_instance }}" \
+            -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
+            -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+            -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
 
       - name: 'Terraform Apply'
         env:
@@ -70,11 +80,12 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: terraform apply -auto-approve \
-              -var="app_name=${{ env.TF_VAR_app_name }}" \
-              -var="environment=${{ env.TF_VAR_environment }}" \
-              -var="location=${{ env.TF_VAR_location }}" \
-              -var="instance=${{ env.TF_VAR_instance }}" \
-              -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
-              -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
-              -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
+        run: |
+          terraform apply -auto-approve \
+            -var="app_name=${{ env.TF_VAR_app_name }}" \
+            -var="environment=${{ env.TF_VAR_environment }}" \
+            -var="location=${{ env.TF_VAR_location }}" \
+            -var="instance=${{ env.TF_VAR_instance }}" \
+            -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
+            -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+            -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
