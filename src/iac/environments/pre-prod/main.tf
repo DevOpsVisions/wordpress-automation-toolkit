@@ -10,6 +10,8 @@ module "network" {
   location            = var.location
   vnet_name           = local.resource_names["vnet"]
   subnet_name         = local.resource_names["subnet"]
+
+  depends_on = [module.resource_group]
 }
 
 module "security" {
@@ -52,6 +54,8 @@ module "security" {
       destination_address_prefix = "*"
     }
   ]
+
+  depends_on = [module.resource_group]
 }
 
 module "compute" {
@@ -65,6 +69,8 @@ module "compute" {
   admin_username      = var.admin_username
   admin_password      = var.admin_password
   provisioner_script  = var.provisioner_script
+
+  depends_on = [module.resource_group]
 }
 
 resource "azurerm_network_interface_security_group_association" "nsg_association" {
