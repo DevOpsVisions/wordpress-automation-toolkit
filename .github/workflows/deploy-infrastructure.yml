@@ -58,9 +58,9 @@ jobs:
         run: terraform plan -var="app_name=${{ env.TF_VAR_app_name }}" \
                             -var="environment=${{ env.TF_VAR_environment }}" \
                             -var="location=${{ env.TF_VAR_location }}" \
-                            -var="instance=${{ env.TF_VAR_instance }}"
-                            -var "admin_username=${{ secrets.ADMIN_USERNAME }}" 
-                            -var "admin_password=${{ secrets.ADMIN_PASSWORD }}"
+                            -var="instance=${{ env.TF_VAR_instance }}" \
+                            -var "admin_username=${{ secrets.ADMIN_USERNAME }}" \
+                            -var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
                             -var "provisioner_script=${{ secrets.TF_VAR_provisioner_script }}"
 
       - name: Terraform Apply
@@ -72,7 +72,7 @@ jobs:
         run: terraform apply -auto-approve -var="app_name=${{ env.TF_VAR_app_name }}" \
                                            -var="environment=${{ env.TF_VAR_environment }}" \
                                            -var="location=${{ env.TF_VAR_location }}" \
-                                           -var="instance=${{ env.TF_VAR_instance }}"
-                                           -var "admin_username=${{ secrets.ADMIN_USERNAME }}" 
-                                           -var "admin_password=${{ secrets.ADMIN_PASSWORD }}"
+                                           -var="instance=${{ env.TF_VAR_instance }}" \
+                                           -var "admin_username=${{ secrets.ADMIN_USERNAME }}" \
+                                           -var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
                                            -var "provisioner_script=${{ secrets.TF_VAR_provisioner_script }}"
