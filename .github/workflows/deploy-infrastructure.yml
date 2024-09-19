@@ -1,9 +1,9 @@
 name: Terraform Azure Deployment
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch
 
 env:
-
   WORKING_DIRECTORY: src/iac
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      - name: Terraform fmt
+      - name: 'Terraform Format Check'
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
@@ -45,34 +45,36 @@ jobs:
       - name: 'Terraform Init'
         run: terraform init
 
-      - name: Terraform Validate
+      - name: 'Terraform Validate'
         id: validate
         run: terraform validate -no-color
 
-      - name: Terraform Plan
+      - name: 'Terraform Plan'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: terraform plan -var="app_name=${{ env.TF_VAR_app_name }}" \
-                            -var="environment=${{ env.TF_VAR_environment }}" \
-                            -var="location=${{ env.TF_VAR_location }}" \
-                            -var="instance=${{ env.TF_VAR_instance }}" \
-                            -var "admin_username=${{ secrets.ADMIN_USERNAME }}" \
-                            -var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
-                            -var "provisioner_script=${{ secrets.TF_VAR_provisioner_script }}"
+        run: terraform plan \
+              -var="app_name=${{ env.TF_VAR_app_name }}" \
+              -var="environment=${{ env.TF_VAR_environment }}" \
+              -var="location=${{ env.TF_VAR_location }}" \
+              -var="instance=${{ env.TF_VAR_instance }}" \
+              -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
+              -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+              -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
 
-      - name: Terraform Apply
+      - name: 'Terraform Apply'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: terraform apply -auto-approve -var="app_name=${{ env.TF_VAR_app_name }}" \
-                                           -var="environment=${{ env.TF_VAR_environment }}" \
-                                           -var="location=${{ env.TF_VAR_location }}" \
-                                           -var="instance=${{ env.TF_VAR_instance }}" \
-                                           -var "admin_username=${{ secrets.ADMIN_USERNAME }}" \
-                                           -var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
-                                           -var "provisioner_script=${{ secrets.TF_VAR_provisioner_script }}"
+        run: terraform apply -auto-approve \
+              -var="app_name=${{ env.TF_VAR_app_name }}" \
+              -var="environment=${{ env.TF_VAR_environment }}" \
+              -var="location=${{ env.TF_VAR_location }}" \
+              -var="instance=${{ env.TF_VAR_instance }}" \
+              -var="admin_username=${{ secrets.ADMIN_USERNAME }}" \
+              -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+              -var="provisioner_script=${{ env.TF_VAR_provisioner_script }}"
