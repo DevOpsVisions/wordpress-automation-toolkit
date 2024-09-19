@@ -4,7 +4,7 @@ on:
   workflow_dispatch
 
 env:
-  WORKING_DIRECTORY: src/iac
+  WORKING_DIRECTORY: src/iac/environments/pre-prod
 
 jobs:
   terraform:
