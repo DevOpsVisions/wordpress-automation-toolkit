@@ -1,3 +1,9 @@
+module "resource_group" {
+  source              = "../../modules/resource-group"
+  resource_group_name = local.resource_names["rg"]
+  location            = var.location
+}
+
 module "network" {
   source              = "../../modules/network"
   resource_group_name = local.resource_names["rg"]
