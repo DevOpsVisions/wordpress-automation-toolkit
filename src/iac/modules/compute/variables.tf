@@ -1,35 +1,44 @@
 variable "pip_name" {
-  type = string
+  description = "The name of the public IP address resource"
+  type        = string
 }
 
 variable "nic_name" {
-  type = string
+  description = "The name of the network interface card (NIC) resource"
+  type        = string
 }
 
 variable "vm_name" {
-  type = string
+  description = "The name of the virtual machine resource"
+  type        = string
 }
 
 variable "location" {
-  type = string
+  description = "The Azure region where the resources will be created"
+  type        = string
 }
 
 variable "resource_group_name" {
-  type = string
+  description = "The name of the resource group in which to create the resources"
+  type        = string
 }
 
 variable "subnet_id" {
-  type = string
+  description = "The ID of the subnet in which to create the resources"
+  type        = string
 }
 
 variable "admin_username" {
-  type = string
+  description = "The admin username for the virtual machine"
+  type        = string
 }
 
 variable "admin_password" {
-  type = string
+  description = "The admin password for the virtual machine"
+  type        = string
 }
 
 variable "provisioner_script" {
-  type = string
+  description = "The path to the script that will be used to provision configurations on the virtual machine"
+  type        = string
 }

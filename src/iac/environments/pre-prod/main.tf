@@ -1,16 +1,16 @@
 module "network" {
-  source              = "./modules/network"
-  resource_group_name = var.resource_group_name
+  source              = "../../modules/network"
+  resource_group_name = local.resource_names["rg"]
   location            = var.location
-  vnet_name           = var.vnet_name
-  subnet_name         = var.subnet_name
+  vnet_name           = local.resource_names["vnet"]
+  subnet_name         = local.resource_names["subnet"]
 }
 
 module "security" {
-  source              = "./modules/security"
-  nsg_name            = var.nsg_name
-  location            = module.network.location
-  resource_group_name = module.network.resource_group_name
+  source              = "../../modules/security"
+  nsg_name            = local.resource_names["nsg"]
+  location            = var.location
+  resource_group_name = local.resource_names["rg"]
   security_rules = [
     {
       name                       = "SSH"
@@ -49,12 +49,12 @@ module "security" {
 }
 
 module "compute" {
-  source              = "./modules/compute"
-  pip_name            = var.pip_name
-  nic_name            = var.nic_name
-  vm_name             = var.vm_name
-  location            = module.network.location
-  resource_group_name = module.network.resource_group_name
+  source              = "../../modules/compute"
+  pip_name            = local.resource_names["pip"]
+  nic_name            = local.resource_names["nic"]
+  vm_name             = local.resource_names["vm"]
+  location            = var.location
+  resource_group_name = local.resource_names["rg"]
   subnet_id           = module.network.subnet_id
   admin_username      = var.admin_username
   admin_password      = var.admin_password

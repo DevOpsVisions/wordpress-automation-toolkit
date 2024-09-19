@@ -1,17 +1,21 @@
 variable "nsg_name" {
-  type = string
+  description = "The name of the network security group (NSG) resource"
+  type        = string
 }
 
 variable "location" {
-  type = string
+  description = "The Azure region where the network security group will be created"
+  type        = string
 }
 
 variable "resource_group_name" {
-  type = string
+  description = "The name of the resource group in which to create the network security group"
+  type        = string
 }
 
 variable "security_rules" {
-  type = list(object({
+  description = "A list of security rules to apply to the network security group"
+  type        = list(object({
     name                       = string
     priority                   = number
     direction                  = string
