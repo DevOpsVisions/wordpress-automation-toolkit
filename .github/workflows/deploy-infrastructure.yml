@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TF_VAR_app_name: "q2a"
+      TF_VAR_workload: "q2a"
       TF_VAR_environment: "temp"
       TF_VAR_location: "uksouth"
       TF_VAR_instance: "001"
@@ -51,7 +51,7 @@ jobs:
 
       - name: 'Debug Variables'
         run: |
-          echo "App Name: ${{ env.TF_VAR_app_name }}"
+          echo "Workload: ${{ env.TF_VAR_workload }}"
           echo "Environment: ${{ env.TF_VAR_environment }}"
           echo "Location: ${{ env.TF_VAR_location }}"
           echo "Instance: ${{ env.TF_VAR_instance }}"
@@ -66,7 +66,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
           terraform plan \
-            -var="app_name=${{ env.TF_VAR_app_name }}" \
+            -var="workload=${{ env.TF_VAR_workload }}" \
             -var="environment=${{ env.TF_VAR_environment }}" \
             -var="location=${{ env.TF_VAR_location }}" \
             -var="instance=${{ env.TF_VAR_instance }}" \
@@ -82,7 +82,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
           terraform apply -auto-approve \
-            -var="app_name=${{ env.TF_VAR_app_name }}" \
+            -var="workload=${{ env.TF_VAR_workload }}" \
             -var="environment=${{ env.TF_VAR_environment }}" \
             -var="location=${{ env.TF_VAR_location }}" \
             -var="instance=${{ env.TF_VAR_instance }}" \
