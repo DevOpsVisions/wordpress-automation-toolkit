@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyTitle>WordPress AutoKit</AssemblyTitle>
+    <AssemblyDescription>A toolkit for automating WordPress tasks</AssemblyDescription>
+    <Company>DevOps Visions</Company>
+    <Product>WordPress AutoKit</Product>
+    <Copyright>Copyright © DevOps Visions 2024</Copyright>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Libs\**" />
-    <EmbeddedResource Remove="Libs\**" />
-    <None Remove="Libs\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dovs.CommonComponents" Version="1.0.0" />
@@ -22,15 +24,6 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="128.0.6613.8400" />
     <PackageReference Include="SlowCheetah" Version="2.5.48" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Dovs.CommonComponents">
-      <HintPath>Libs\Dovs.CommonComponents.dll</HintPath>
-    </Reference>
-    <Reference Include="Dovs.FileSystemInteractor">
-      <HintPath>Libs\Dovs.FileSystemInteractor.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
