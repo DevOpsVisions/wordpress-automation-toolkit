@@ -13,6 +13,7 @@
     <Copyright>Copyright © DevOps Visions 2024</Copyright>
     <Version>1.0.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyName>WordPressAutoKit</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
