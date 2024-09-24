@@ -4,7 +4,6 @@ using Dovs.FileSystemInteractor.Interfaces;
 using Dovs.FileSystemInteractor.Services;
 using Dovs.WordPressAutoKit;
 using Dovs.CommonComponents;
-using System;
 using OpenQA.Selenium;
 
 class Program
@@ -13,16 +12,27 @@ class Program
     {
         InitializeServices();
 
-        if (args.Length == 8)
+        if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
         {
-            var arguments = ParseArguments(args);
-            if (arguments.HasValue)
+            if (args.Length == 9)
             {
-                var (filePath, adminUsername, adminPassword, registrationPassword) = arguments.Value;
+                string filePath = GetArgumentValue(args, "--file-path", "-fp");
+                string adminUsername = GetArgumentValue(args, "--admin-username", "-un");
+                string adminPassword = GetArgumentValue(args, "--admin-password", "-pass");
+                string registrationPassword = GetArgumentValue(args, "--registration-password", "-rp");
+
+                if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword) && !string.IsNullOrEmpty(registrationPassword))
+                {
+                    AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
+                }
             }
             else
             {
-                Console.WriteLine("Invalid arguments. Please provide all required parameters.");
+                Console.WriteLine("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
             }
         }
         else
@@ -31,11 +41,26 @@ class Program
         }
     }
 
+    private static string GetArgumentValue(string[] args, string longForm, string shortForm)
+    {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].Equals(longForm, StringComparison.OrdinalIgnoreCase) || args[i].Equals(shortForm, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length)
+                {
+                    return args[i + 1];
+                }
+            }
+        }
+        return string.Empty;
+    }
+
     private static void DisplayMenu()
     {
         Console.WriteLine(CoreUtilities.CreateWelcomeMessage("WordPress Automation Toolkit"));
         Console.WriteLine("Please select an option:");
-        Console.WriteLine("1. Register Users");
+        Console.WriteLine("1. Add Users");
         Console.WriteLine("2. Remove Users");
         Console.WriteLine("3. Update Users");
         Console.WriteLine("4. Exit");
@@ -95,6 +120,11 @@ class Program
         string registrationPassword = GetRegistrationPassword();
         if (string.IsNullOrEmpty(registrationPassword)) return;
 
+        AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+    }
+
+    private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword)
+    {
         using (var driver = webDriverService?.CreateWebDriver())
         {
             if (driver == null)
@@ -201,23 +231,6 @@ class Program
             Console.WriteLine("Invalid registration password. Exiting the program.");
         }
         return registrationPassword;
-    }
-
-    private static (string FilePath, string AdminUsername, string AdminPassword, string RegistrationPassword)? ParseArguments(string[] args)
-    {
-        var arguments = args.Select((value, index) => new { value, index })
-                            .GroupBy(x => x.index / 2)
-                            .ToDictionary(g => g.First().value, g => g.Last().value);
-
-        if (arguments.TryGetValue("-filePath", out string? filePath) &&
-            arguments.TryGetValue("-adminUsername", out string? adminUsername) &&
-            arguments.TryGetValue("-adminPassword", out string? adminPassword) &&
-            arguments.TryGetValue("-registrationPassword", out string? registrationPassword))
-        {
-            return (filePath, adminUsername, adminPassword, registrationPassword);
-        }
-
-        return null;
     }
 
     private static void RemoveUsers()
