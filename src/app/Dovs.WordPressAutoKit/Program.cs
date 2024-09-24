@@ -17,9 +17,9 @@ class Program
             if (args.Length == 9)
             {
                 string filePath = GetArgumentValue(args, "--file-path", "-fp");
-                string adminUsername = GetArgumentValue(args, "--admin-username", "-un");
-                string adminPassword = GetArgumentValue(args, "--admin-password", "-pass");
-                string registrationPassword = GetArgumentValue(args, "--registration-password", "-rp");
+                string adminUsername = GetArgumentValue(args, "--admin-username", "-aun");
+                string adminPassword = GetArgumentValue(args, "--admin-password", "-apass");
+                string registrationPassword = GetArgumentValue(args, "--registration-password", "-rpass");
 
                 if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword) && !string.IsNullOrEmpty(registrationPassword))
                 {
