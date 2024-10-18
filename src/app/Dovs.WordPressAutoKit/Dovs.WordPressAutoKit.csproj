@@ -25,10 +25,10 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="128.0.6613.8400" />
     <PackageReference Include="SlowCheetah" Version="2.5.48" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-	<None Update="appsettings.json">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <None Update="appsettings.json">
+	<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
