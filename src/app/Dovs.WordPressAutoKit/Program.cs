@@ -2,9 +2,9 @@
 using Dovs.WordPressAutoKit.Services;
 using Dovs.FileSystemInteractor.Interfaces;
 using Dovs.FileSystemInteractor.Services;
-using Dovs.WordPressAutoKit;
 using Dovs.CommonComponents;
 using OpenQA.Selenium;
+using Dovs.WordPressAutoKit;
 
 class Program
 {
@@ -151,16 +151,16 @@ class Program
 
     private static void AdminLogin(IWebDriver driver, string adminUsername, string adminPassword)
     {
-        string loginUrl = configurationService?.GetConfigValue("LoginUrl") ?? string.Empty;
+        string loginUrl = configurationService?.GetConfigValue("PlatformSettings:LoginUrl") ?? string.Empty;
         adminLoginService?.Login(driver, loginUrl, adminUsername, adminPassword);
     }
 
     private static void AddUsers(IWebDriver driver, string filePath, string registrationPassword)
     {
-        string addNewUserUrl = configurationService?.GetConfigValue("AddNewUserUrl") ?? string.Empty;
-        var columnNames = configurationService?.GetColumnNames("ColumnNames") ?? new List<string>();
+        string addNewUserUrl = configurationService?.GetConfigValue("PlatformSettings:AddNewUserUrl") ?? string.Empty;
+        var columnNames = configurationService?.GetColumnNames("DataColumns:ColumnNames") ?? new List<string>();
         var dataList = excelReaderService?.ReadData(filePath, columnNames) ?? new List<Dictionary<string, string>>();
-        var role = configurationService?.GetConfigValue("PostRegisterRole") ?? string.Empty;
+        var role = configurationService?.GetConfigValue("PlatformSettings:PostRegisterRole") ?? string.Empty;
 
         foreach (var data in dataList)
         {
@@ -209,7 +209,7 @@ class Program
 
     private static string GetAdminUsername()
     {
-        string adminUserNames = configurationService?.GetConfigValue("AdminUserNames") ?? string.Empty;
+        string adminUserNames = configurationService?.GetConfigValue("PlatformSettings:AdminUserNames") ?? string.Empty;
         return authenticationService?.GetAdminUsername(adminUserNames) ?? string.Empty;
     }
 
