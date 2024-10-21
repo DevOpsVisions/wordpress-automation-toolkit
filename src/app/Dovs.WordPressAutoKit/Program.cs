@@ -14,6 +14,12 @@ class Program
 
         if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
         {
+            if (args.Contains("--help", StringComparer.OrdinalIgnoreCase) || args.Contains("-h", StringComparer.OrdinalIgnoreCase))
+            {
+                DisplayHelp();
+                return;
+            }
+
             if (args.Length == 9)
             {
                 string filePath = GetArgumentValue(args, "--file-path", "-fp");
@@ -39,6 +45,28 @@ class Program
         {
             DisplayMenu();
         }
+    }
+
+    private static void DisplayHelp()
+    {
+        Console.WriteLine("Add User Command Help:");
+        Console.WriteLine();
+        Console.WriteLine("Description:");
+        Console.WriteLine("  The add-user command is used to add new users to the system from a specified file. This command allows you to specify the file path containing user data, admin credentials for login, and the registration password to be used for the new users.");
+        Console.WriteLine();
+        Console.WriteLine("Usage:");
+        Console.WriteLine("  WordPressAutoKit.exe add-user [options]");
+        Console.WriteLine();
+        Console.WriteLine("Options:");
+        Console.WriteLine("  --file-path, -fp <filePath>            Specifies the path to the file containing user data.");
+        Console.WriteLine("  --admin-username, -aun <adminUsername> Specifies the admin username for login.");
+        Console.WriteLine("  --admin-password, -apass <adminPassword> Specifies the admin password for login.");
+        Console.WriteLine("  --registration-password, -rpass <registrationPassword> Specifies the password to use for registration.");
+        Console.WriteLine("  --help, -h                             Displays this help message.");
+        Console.WriteLine();
+        Console.WriteLine("Examples:");
+        Console.WriteLine("  WordPressAutoKit.exe add-user --file-path users.xlsx --admin-username admin --admin-password admin123 --registration-password reg123");
+        Console.WriteLine("  WordPressAutoKit.exe add-user -fp users.xlsx -aun admin -apass admin123 -rpass reg123");
     }
 
     private static string GetArgumentValue(string[] args, string longForm, string shortForm)
