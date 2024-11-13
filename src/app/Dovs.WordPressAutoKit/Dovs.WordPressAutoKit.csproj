@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dovs.CommonComponents" Version="1.0.0" />
+    <PackageReference Include="Dovs.CommonComponents" Version="1.0.1" />
     <PackageReference Include="Dovs.FileSystemInteractor" Version="1.2.1" />
     <PackageReference Include="ExcelDataReader" Version="3.7.0" />
     <PackageReference Include="Selenium.Support" Version="4.23.0" />
