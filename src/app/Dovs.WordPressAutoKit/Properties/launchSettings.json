@@ -3,7 +3,7 @@
     "Dovs.WordPressAutoKit": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "$(Configuration)"
+        "APP_ENVIRONMENT": "$(Configuration)"
       }
     }
   }
