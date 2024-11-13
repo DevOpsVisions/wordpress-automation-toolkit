@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Dovs.WordPressAutoKit": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "APP_ENVIRONMENT": "$(Configuration)"
+      }
+    }
+  }
+}
