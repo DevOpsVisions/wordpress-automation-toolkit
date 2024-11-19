@@ -5,40 +5,64 @@ using Dovs.FileSystemInteractor.Services;
 using Dovs.CommonComponents;
 using OpenQA.Selenium;
 using Dovs.WordPressAutoKit;
+using Serilog;
 
 class Program
 {
     static void Main(string[] args)
     {
-        InitializeServices();
+        ConfigureLogging();
 
-        if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            if (args.Length == 9)
-            {
-                string filePath = GetArgumentValue(args, "--file-path", "-fp");
-                string adminUsername = GetArgumentValue(args, "--admin-username", "-aun");
-                string adminPassword = GetArgumentValue(args, "--admin-password", "-apass");
-                string registrationPassword = GetArgumentValue(args, "--registration-password", "-rpass");
+            InitializeServices();
 
-                if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword) && !string.IsNullOrEmpty(registrationPassword))
+            if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
+            {
+                if (args.Length == 9)
                 {
-                    AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+                    string filePath = GetArgumentValue(args, "--file-path", "-fp");
+                    string adminUsername = GetArgumentValue(args, "--admin-username", "-aun");
+                    string adminPassword = GetArgumentValue(args, "--admin-password", "-apass");
+                    string registrationPassword = GetArgumentValue(args, "--registration-password", "-rpass");
+
+                    if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword) && !string.IsNullOrEmpty(registrationPassword))
+                    {
+                        AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
+                    }
+                    else
+                    {
+                        Log.Error("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
+                    Log.Error("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid arguments. Usage: WordPressAutoKit.exe add-user --file-path <filePath> --admin-username <adminUsername> --admin-password <adminPassword> --registration-password <registrationPassword>");
+                DisplayMenu();
             }
         }
-        else
+        catch (Exception ex)
         {
-            DisplayMenu();
+            Log.Fatal(ex, "An unhandled exception occurred.");
         }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+
+    private static void ConfigureLogging()
+    {
+        string logFilePath = $"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .WriteTo.File(logFilePath)
+            .CreateLogger();
     }
 
     private static string GetArgumentValue(string[] args, string longForm, string shortForm)
@@ -82,10 +106,10 @@ class Program
                 DisplayMenu();
                 break;
             case 4:
-                Console.WriteLine("Exiting the App...");
+                Log.Information("Exiting the App...");
                 break;
             default:
-                Console.WriteLine("Invalid option. Please try again.");
+                Log.Warning("Invalid option. Please try again.");
                 DisplayMenu();
                 break;
         }
@@ -93,15 +117,24 @@ class Program
 
     private static int GetOptionFromUser()
     {
-        Console.Write("Enter the option number: ");
+        Console.WriteLine("Enter the option number: ");
         string input = Console.ReadLine() ?? string.Empty;
         if (int.TryParse(input, out int option))
         {
+            string optionText = option switch
+            {
+                1 => "Add Users",
+                2 => "Remove Users",
+                3 => "Update Users",
+                4 => "Exit",
+                _ => "Invalid option"
+            };
+            Log.Information($"User selected option {option}: {optionText}");
             return option;
         }
         else
         {
-            Console.WriteLine("Invalid option. Please try again.");
+            Log.Warning("Invalid option. Please try again.");
             return GetOptionFromUser();
         }
     }
@@ -109,16 +142,33 @@ class Program
     private static void AddUsers()
     {
         string filePath = GetFilePathWithExtension();
-        if (string.IsNullOrEmpty(filePath)) return;
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Log.Error("File path is empty. Exiting Add Users process.");
+            return;
+        }
+        Log.Information($"File path selected: {filePath}");
 
         string adminUsername = GetAdminUsername();
-        if (string.IsNullOrEmpty(adminUsername)) return;
+        if (string.IsNullOrEmpty(adminUsername))
+        {
+            Log.Error("Admin username is empty. Exiting Add Users process.");
+            return;
+        }
 
         string adminPassword = GetAdminPassword();
-        if (string.IsNullOrEmpty(adminPassword)) return;
+        if (string.IsNullOrEmpty(adminPassword))
+        {
+            Log.Error("Admin password is empty. Exiting Add Users process.");
+            return;
+        }
 
         string registrationPassword = GetRegistrationPassword();
-        if (string.IsNullOrEmpty(registrationPassword)) return;
+        if (string.IsNullOrEmpty(registrationPassword))
+        {
+            Log.Error("Registration password is empty. Exiting Add Users process.");
+            return;
+        }
 
         AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
     }
@@ -129,7 +179,7 @@ class Program
         {
             if (driver == null)
             {
-                Console.WriteLine("Failed to create WebDriver. Exiting the program.");
+                Log.Error("Failed to create WebDriver. Exiting the program.");
                 return;
             }
 
@@ -140,7 +190,7 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Log.Error(ex, "An error occurred while adding users.");
             }
             finally
             {
@@ -157,18 +207,31 @@ class Program
 
     private static void AddUsers(IWebDriver driver, string filePath, string registrationPassword)
     {
+        Log.Information("Starting to add users from Excel file");
+
         string addNewUserUrl = configurationService?.GetConfigValue("PlatformSettings:AddNewUserUrl") ?? string.Empty;
         var columnNames = configurationService?.GetColumnNames("DataColumns:ColumnNames") ?? new List<string>();
         var dataList = excelReaderService?.ReadData(filePath, columnNames) ?? new List<Dictionary<string, string>>();
         var role = configurationService?.GetConfigValue("PlatformSettings:PostRegisterRole") ?? string.Empty;
 
+        Log.Information($"Read {dataList.Count} entries from Excel file");
+
         foreach (var data in dataList)
         {
             var userData = new UserData(data["Username"], data["Email"], data["Membership"]);
+            Log.Information($"Adding user: {userData.UserName}, Email: {userData.Email}, Membership: {userData.Membership}");
+
             userManagementService?.AddNewUser(driver, userData, registrationPassword, addNewUserUrl);
+            Log.Information($"User {userData.UserName} added successfully");
+
             roleService?.UpdateRole(driver, role);
+            Log.Information($"Role updated to {role} for user {userData.UserName}");
+
             membershipService?.AddMembership(driver, data["Membership"]);
+            Log.Information($"Membership {data["Membership"]} added for user {userData.UserName}");
         }
+
+        Log.Information("Completed adding users from Excel file");
     }
 
     private static string GetFilePathWithExtension()
@@ -178,14 +241,14 @@ class Program
         string fileExtension = GetFileExtension();
         if (string.IsNullOrEmpty(fileExtension))
         {
-            Console.WriteLine("Invalid file extension. Exiting the program.");
+            Log.Error("Invalid file extension. Exiting the program.");
             return string.Empty;
         }
 
         string filePath = fileInteractionService?.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension) ?? string.Empty;
         if (string.IsNullOrEmpty(filePath))
         {
-            Console.WriteLine("Invalid file path. Exiting the program.");
+            Log.Error("Invalid file path. Exiting the program.");
             return string.Empty;
         }
 
@@ -197,28 +260,34 @@ class Program
         Console.WriteLine("Please select the file type or specify the extension:\n1. Excel (.xlsx)\n2. Markdown (.md)\n3. CSV (.csv)\nPress Enter to select Excel (.xlsx) by default.");
         string input = Console.ReadLine() ?? string.Empty;
 
-        return input switch
+        string optionText = input switch
         {
-            "1" => ".xlsx",
-            "2" => ".md",
-            "3" => ".csv",
-            "" => ".xlsx", // Default to Excel if Enter is pressed
+            "1" => "Excel (.xlsx)",
+            "2" => "Markdown (.md)",
+            "3" => "CSV (.csv)",
+            "" => "Excel (.xlsx)", // Default to Excel if Enter is pressed
             _ => input // Assume the user specified the extension directly
         };
+
+        Log.Information($"User selected file type option {input}: {optionText}");
+        return optionText;
     }
 
     private static string GetAdminUsername()
     {
         string adminUserNames = configurationService?.GetConfigValue("PlatformSettings:AdminUserNames") ?? string.Empty;
-        return authenticationService?.GetAdminUsername(adminUserNames) ?? string.Empty;
+        string adminUsername = authenticationService?.GetAdminUsername(adminUserNames) ?? string.Empty;
+        Log.Information($"Choosing to log as {adminUsername} Admin");
+        return adminUsername;
     }
 
     private static string GetAdminPassword()
     {
         string adminPassword = passwordService?.PromptForPassword("Enter your admin password:") ?? string.Empty;
+        Log.Information("Adding Admin Password");
         if (string.IsNullOrEmpty(adminPassword))
         {
-            Console.WriteLine("Invalid password. Exiting the program.");
+            Log.Error("Invalid password. Exiting the program.");
         }
         return adminPassword;
     }
@@ -226,21 +295,22 @@ class Program
     private static string GetRegistrationPassword()
     {
         string registrationPassword = passwordService?.PromptForPassword("Enter the password to use for registration:") ?? string.Empty;
+        Log.Information("Adding Registration Password");
         if (string.IsNullOrEmpty(registrationPassword))
         {
-            Console.WriteLine("Invalid registration password. Exiting the program.");
+            Log.Error("Invalid registration password. Exiting the program.");
         }
         return registrationPassword;
     }
 
     private static void RemoveUsers()
     {
-        Console.WriteLine("Remove Users method is not implemented yet.");
+        Log.Information("Remove Users method is not implemented yet.");
     }
 
     private static void UpdateUsers()
     {
-        Console.WriteLine("Update Users method is not implemented yet.");
+        Log.Information("Update Users method is not implemented yet.");
     }
 
     private static void InitializeServices()
