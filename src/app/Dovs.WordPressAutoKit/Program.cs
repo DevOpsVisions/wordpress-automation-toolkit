@@ -142,7 +142,9 @@ class Program
 
     private static void AddUsers()
     {
-        string filePath = GetFilePathWithExtension();
+        string filePath = fileInteractionService != null && filePathService != null
+            ? fileInteractionService.GetFilePathWithExtension(filePathService)
+            : string.Empty;
         if (string.IsNullOrEmpty(filePath))
         {
             Log.Error("File path is empty. Exiting Add Users process.");
@@ -233,45 +235,6 @@ class Program
         }
 
         Log.Information("Completed adding users from Excel file");
-    }
-
-    private static string GetFilePathWithExtension()
-    {
-        const int LEVELSTRAVERSE = 2;
-
-        string fileExtension = GetFileExtension();
-        if (string.IsNullOrEmpty(fileExtension))
-        {
-            Log.Error("Invalid file extension. Exiting the program.");
-            return string.Empty;
-        }
-
-        string filePath = fileInteractionService?.SelectFilePath(filePathService, LEVELSTRAVERSE, fileExtension) ?? string.Empty;
-        if (string.IsNullOrEmpty(filePath))
-        {
-            Log.Error("Invalid file path. Exiting the program.");
-            return string.Empty;
-        }
-
-        return filePath;
-    }
-
-    private static string GetFileExtension()
-    {
-        Console.WriteLine("Please select the file type or specify the extension:\n1. Excel (.xlsx)\n2. Markdown (.md)\n3. CSV (.csv)\nPress Enter to select Excel (.xlsx) by default.");
-        string input = Console.ReadLine() ?? string.Empty;
-
-        string optionText = input switch
-        {
-            "1" => "Excel (.xlsx)",
-            "2" => "Markdown (.md)",
-            "3" => "CSV (.csv)",
-            "" => "Excel (.xlsx)", // Default to Excel if Enter is pressed
-            _ => input // Assume the user specified the extension directly
-        };
-
-        Log.Information($"User selected file type option {input}: {optionText}");
-        return optionText;
     }
 
     private static string GetAdminUsername()
