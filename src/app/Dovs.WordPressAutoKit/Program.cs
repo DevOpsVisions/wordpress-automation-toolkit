@@ -11,11 +11,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        ConfigureLogging();
-
         try
         {
             InitializeServices();
+            ConfigureLogging();
 
             if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
             {
@@ -58,8 +57,10 @@ class Program
     private static void ConfigureLogging()
     {
         string logFilePath = $"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        var minimumLevel = configurationService?.GetConfigValue("Serilog:MinimumLevel") ?? "Debug";
+
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            .MinimumLevel.Is(Enum.Parse<Serilog.Events.LogEventLevel>(minimumLevel, true))
             .WriteTo.Console()
             .WriteTo.File(logFilePath)
             .CreateLogger();
