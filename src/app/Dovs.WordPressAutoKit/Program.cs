@@ -102,12 +102,10 @@ class Program
     /// </summary>
     private static void DisplayHelp(string xmlMemberName, string silentMethod)
     {
-        var assemblyPath =Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-
-        var xmlPath = Path.ChangeExtension(Path.Combine(assemblyPath, "helps", assemblyName), ".xml");
+        //var assemblyPath =Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+        var xmlPath = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".xml");
         var xmlDoc = XDocument.Load(xmlPath);
-
         var member = xmlDoc.Descendants("member")
             .FirstOrDefault(m => m.Attribute("name")?.Value == xmlMemberName);
 
