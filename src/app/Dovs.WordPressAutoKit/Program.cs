@@ -6,7 +6,9 @@ using Dovs.CommonComponents;
 using OpenQA.Selenium;
 using Dovs.WordPressAutoKit;
 using Serilog;
-
+using System.Reflection;
+using System.Xml.Linq;
+using System.Text.RegularExpressions;
 class Program
 {
     static void Main(string[] args)
@@ -18,6 +20,11 @@ class Program
 
             if (args.Length > 0 && args[0].Equals("add-user", StringComparison.OrdinalIgnoreCase))
             {
+                if (args.Contains("--help", StringComparer.OrdinalIgnoreCase) || args.Contains("-h", StringComparer.OrdinalIgnoreCase))
+                {
+                    DisplayHelp("M:Program.AddUsers(System.String,System.String,System.String,System.String)", "add-user");
+                    return;
+                }
                 if (args.Length == 9)
                 {
                     string filePath = GetArgumentValue(args, "--file-path", "-fp");
@@ -54,6 +61,90 @@ class Program
         }
     }
 
+    private static string ConvertToAbbreviation(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        string abbreviation = string.Empty;
+
+        foreach (char c in input)
+        {
+            // Check if the character is uppercase
+            if (char.IsUpper(c))
+            {
+                abbreviation += char.ToLower(c); // Add the lowercase version of the uppercase letter
+            }
+        }
+
+        // Ensure the first letter of the input is always included (handle the lowercase start of camelCase)
+        if (abbreviation.Length == 0 || char.IsLower(input[0]))
+        {
+            abbreviation = input[0] + abbreviation;
+        }
+
+        return abbreviation;
+    }
+    private static string ConvertToHyphenSeparated(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        // Use Regex to insert hyphens before uppercase letters
+        string result = Regex.Replace(input, @"([a-z])([A-Z])", "$1-$2");
+
+        // Convert the entire result to lowercase
+        return result.ToLower();
+    }
+
+    /// <summary>
+    /// Displays help information for the a silent command.
+    /// </summary>
+    private static void DisplayHelp(string xmlMemberName, string silentMethod)
+    {
+        var assemblyPath =Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+
+        var xmlPath = Path.ChangeExtension(Path.Combine(assemblyPath, "helps", assemblyName), ".xml");
+        var xmlDoc = XDocument.Load(xmlPath);
+
+        var member = xmlDoc.Descendants("member")
+            .FirstOrDefault(m => m.Attribute("name")?.Value == xmlMemberName);
+
+        if (member != null)
+        {
+            var summary = member.Element("summary")?.Value.Trim();
+            var parameters = member.Elements("param");
+            var examples = member.Elements("example");
+
+            Console.WriteLine("Description:");
+            Console.WriteLine($"  {summary}");
+            Console.WriteLine();
+            Console.WriteLine("Usage:");
+            Console.WriteLine($"  {Assembly.GetExecutingAssembly().GetName().Name}.exe {silentMethod} [options]");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+
+            foreach (var param in parameters)
+            {
+                var name = param.Attribute("name")?.Value;
+                var description = param.Value.Trim();
+                Console.WriteLine($"  --{ConvertToHyphenSeparated(name)}, -{ConvertToAbbreviation(name)} <{name}>  {description}");
+            }
+            Console.WriteLine("  --help, -h <help> Displays this help message.");
+            Console.WriteLine();
+            Console.WriteLine("Examples:");
+            foreach (var example in examples)
+            {
+                var description = example.Value.Trim();
+                Console.WriteLine($" {Assembly.GetExecutingAssembly().GetName().Name}.exe {description}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Help information not found.");
+        }
+    }
     private static void ConfigureLogging()
     {
         string logFilePath = $"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
@@ -175,6 +266,15 @@ class Program
 
         AddUsers(filePath, adminUsername, adminPassword, registrationPassword);
     }
+    /// <summary>
+    /// The add-user command is used to add new users to the system from a specified file. This command allows you to specify the file path containing user data, admin credentials for login, and the registration password to be used for the new users.
+    /// </summary>
+    /// <param name="filePath">The path to the file containing user data.</param>
+    /// <param name="adminUsername">The admin username for login.</param>
+    /// <param name="adminPassword">The admin password for login.</param>
+    /// <param name="registrationPassword">The password to use for registration.</param>
+    /// <example> add-user --file-path users.xlsx --admin-username admin --admin-password admin123 --registration-password reg123 </example>
+    /// <example> add-user -fp users.xlsx -au admin -ap admin123 -rp reg123 </example>
 
     private static void AddUsers(string filePath, string adminUsername, string adminPassword, string registrationPassword)
     {
