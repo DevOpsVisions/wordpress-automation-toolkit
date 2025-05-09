@@ -13,7 +13,7 @@ jobs:
 
     env:
       TF_VAR_workload: "learning"
-      TF_VAR_environment: "test"
+      TF_VAR_environment: "restore"
       TF_VAR_location: "uksouth"
       TF_VAR_instance: "001"
       TF_VAR_provisioner_script: "../../scripts/install-lamp.sh"
