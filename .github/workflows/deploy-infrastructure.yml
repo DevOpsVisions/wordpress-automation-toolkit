@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TF_VAR_workload: "q2a"
+      TF_VAR_workload: "learning"
       TF_VAR_environment: "migration"
       TF_VAR_location: "uksouth"
       TF_VAR_instance: "001"
